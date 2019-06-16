@@ -1,0 +1,8 @@
+# SUSOD Dev Start Script
+
+export FLASK_DEBUG=True
+export FLASK_APP=SUSOD
+# I don't believe this is needed
+#export SUSOD_CONFIG=config.py
+
+flask run --host 0.0.0.0 --port 8000
