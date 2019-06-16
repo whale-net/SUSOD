@@ -15,6 +15,7 @@ setup(
 		'Flask',
 		'pycodestyle',
 		'pydocstyle',
-		'gmusicapi'
+		'gmusicapi',
+		'mysql-connector'
 	],
 )
