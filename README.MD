@@ -17,4 +17,5 @@ Web Service for running a local jukebox.
 5. Give start script permissions `chmod +x ./bin/run`
 6. Modify ./SUSOD/config.py 
 7. follow guide to setup MySQL server and user account matching your config
-8. Execute `./bin/run` and visit `http://localhost:8000`
+8. mysql -u DB_USERNAME -p DB_NAME < test_schema.sql 
+9. Execute `./bin/run` and visit `http://localhost:8000`
