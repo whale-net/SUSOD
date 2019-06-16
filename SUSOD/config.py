@@ -3,6 +3,7 @@ SUSOD dev config.
 
 currently not very useful
 """
+import os
 
 APPLICATION_ROOT = '/'
 

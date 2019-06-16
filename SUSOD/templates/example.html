@@ -3,12 +3,49 @@
 
 <head>
 	<title>Example Page</title>
+	<style>
+		table, th, td {
+			border: 1px solid black;
+		}
+		th, td {
+			padding: 5px;
+			text-align: center;
+		}
+	</style>
 </head>
 
 <body>
 
 <div id="look-at-me-im-an-example">
 	{{ message }}
+
+	<table>
+		<tr>
+			<th>primary key</th>
+			<th>info message</th>
+		</tr>
+		{% for msg in test_data %}
+		<tr>
+			<td>
+				{{ msg[0] }}
+			</td>
+			<td>
+				{{ msg[1] }}
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+
+<div>
+	<!-- send requests old school without js -->
+	<fieldset>
+	<legend>Input Data</legend>
+	<form action="/api/example">
+		<input type="text" name="info"/>
+		<input type="submit" formmethod="post" value="Submit to server!"/>
+	</form>
+	</fieldset>
 </div>
 
 </body>
