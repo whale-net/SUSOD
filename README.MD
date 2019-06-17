@@ -19,3 +19,7 @@ Web Service for running a local jukebox.
 7. follow guide to setup MySQL server and user account matching your config
 8. mysql -u DB_USERNAME -p DB_NAME < test_schema.sql 
 9. Execute `./bin/run` and visit `http://localhost:8000`
+
+
+# LICENSE
+It's MIT. If somehow there is something you want to use in this repository, go ahead and use it, but let me know. I would just like to know how and where you use it.
