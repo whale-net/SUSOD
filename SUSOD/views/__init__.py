@@ -8,5 +8,5 @@ is intended to serve your view pages.
 """
 
 #example
-from SUSOD.views.example_page import show_example_page
+from .example_page import show_example_page
 
