@@ -1,0 +1,27 @@
+{
+	"name": "SUSOD",
+	"version": "1.0.0",
+	"main": "SUSOD/js/main.jsx",
+	"license": "MIT",
+	"scripts": {
+		"build": "webpack --mode production",
+		"dev": "webpack --mode development --watch"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/whale-net/SUSOD.git"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.5.4",
+		"@babel/preset-env": "^7.5.4",
+		"@babel/preset-react": "^7.0.0",
+		"babel-loader": "^8.0.6",
+		"prop-types": "^15.7.2",
+		"webpack": "^4.35.3",
+		"webpack-cli": "^3.3.6"
+	},
+	"dependencies": {
+		"react": "^16.8.6",
+		"react-dom": "^16.8.6"
+	}
+}

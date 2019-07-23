@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
 	name='SUSOD',
-	version='0.1',
+	version='1.0.0',
 	packages=['SUSOD'],
 	include_package_data=True,
 	install_requires=[
@@ -16,6 +16,7 @@ setup(
 		'pycodestyle',
 		'pydocstyle',
 		'gmusicapi',
-		'mysql-connector'
+		'mysql-connector',
+		'nodeenv'
 	],
 )

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 
+
+
 <head>
 	<title>Example Page</title>
 	<style>
@@ -12,41 +14,14 @@
 			text-align: center;
 		}
 	</style>
+
 </head>
 
 <body>
+	
+	<div id="reactEntry"/>
 
-<div id="look-at-me-im-an-example">
-	{{ message }}
-
-	<table>
-		<tr>
-			<th>primary key</th>
-			<th>info message</th>
-		</tr>
-		{% for msg in test_data %}
-		<tr>
-			<td>
-				{{ msg[0] }}
-			</td>
-			<td>
-				{{ msg[1] }}
-			</td>
-		</tr>
-		{% endfor %}
-	</table>
-</div>
-
-<div>
-	<!-- send requests old school without js -->
-	<fieldset>
-	<legend>Input Data</legend>
-	<form action="/api/example">
-		<input type="text" name="info"/>
-		<input type="submit" formmethod="post" value="Submit to server!"/>
-	</form>
-	</fieldset>
-</div>
+	<script src="{{ url_for('static', filename='./js/bundle.js') }}"></script>
 
 </body>
 
