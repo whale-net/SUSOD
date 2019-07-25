@@ -2,7 +2,7 @@
 SUSOD.sublime-*
 
 # ignore our files
-static/js/bundle.js
+bundle.js
 node_modules/*
 
 # Byte-compiled / optimized / DLL files

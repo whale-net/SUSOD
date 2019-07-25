@@ -8,7 +8,7 @@ class Index extends Component {
 	constructor() {
 		super();
 		this.state = {
-			title: "Test 123"
+			
 		};
 	}
 
@@ -19,7 +19,9 @@ class Index extends Component {
 	render() {
 		return (
 			<div>
-				hello world
+				<p>
+					Hello World
+				</p>
 			</div>
 		);
 	}
