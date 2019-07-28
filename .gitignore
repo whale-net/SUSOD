@@ -1,8 +1,8 @@
 # Ignore sublime files
 SUSOD.sublime-*
 
-# ignore our files
-bundle.js
+# ignore generated files
+SUSOD/static/js/*
 node_modules/*
 
 # Byte-compiled / optimized / DLL files
