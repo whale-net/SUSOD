@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-//import Index from 'index/index';
-import Index from '../index/index'
+import Index from 'user/index';
 
 
 

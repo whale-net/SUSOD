@@ -13,3 +13,12 @@ def show_index():
 	context = {}
 	
 	return flask.render_template('index.html', **context)
+
+# REMOVE THIS AFTER MULTI PAGE TEST
+@SUSOD.app.route('/user')
+def show_user():
+	""" Display /example page."""
+
+	context = {}
+	
+	return flask.render_template('user.html', **context)

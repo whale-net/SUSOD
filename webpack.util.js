@@ -3,9 +3,7 @@ const statSync = require('fs').statSync;
 const join = require('path').join;
 const extname = require('path').extname;
 const fileParse = require('path').parse;
-const dirname = require('path').dirname;
-const basename = require('path').basename;
-const sep = require('path').sep;
+const resolve = require('path').resolve;
 
 //https://github.com/przemek-nowicki/multi-page-app-with-react/blob/master/config/files.js
 const getFilesFromDir = (dir, fileTypes) => {
@@ -25,14 +23,18 @@ const getFilesFromDir = (dir, fileTypes) => {
 	return filesToReturn;
 }
 
-// returns directory to entry point's folder for alias
-// const getPageGroups = (entryPoints) => {
-// 	entryPoints.reduce( (obj, entry) => {
-// 		const curFile = fileParse(entry).base;
-// 		const curFileName = curFile.replace(extname(curFile), '');
-// 		obj[curFileName] = dirname(entry).replace(basename(dirname(entry)), '');
-// 	}, {})
-// }
+//returns directory to entry point's folder for alias
+const getAliases = (entryPoints, JS_DIR) => {
+	aliases = {}
+	entryPoints.forEach( (entry) => {
+		const curFile = fileParse(entry).base;
+		const curFileName = curFile.replace(extname(curFile), '');
+		aliases[curFileName] = resolve(JS_DIR, curFileName);
+	})
+	return aliases;
+}
 
-module.exports = getFilesFromDir;
-//module.exports = getPageGroups;
+module.exports ={
+	getFilesFromDir: getFilesFromDir,	
+	getAliases: getAliases
+} 
