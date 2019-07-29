@@ -2,13 +2,13 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
 
-
+// THIS FILE WILL NEED TO BE CHANGED, here to test compilation
 
 class Index extends Component {
 	constructor() {
 		super();
 		this.state = {
-			title: "Test 123"
+			
 		};
 	}
 
@@ -19,7 +19,9 @@ class Index extends Component {
 	render() {
 		return (
 			<div>
-				hello world
+				<p>
+					users stuff
+				</p>
 			</div>
 		);
 	}

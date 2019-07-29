@@ -1,0 +1,35 @@
+{% extends "header.html" %}
+{% block content %}
+<form action="{{ url_for('api_user_login') }}" method="post">
+<table>
+	<tr>
+		<td>
+			Username:
+		</td>
+		<td>
+			<input type="text" name="username">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Password:
+		</td>
+		<td>
+			<input type="password" name="password">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<button type="submit" value="Submit">Submit</button>
+		</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>
+			<a href="{{ url_for('show_user_create') }}">create</a>
+		</td>
+		<td></td>
+	</tr>
+</table>
+</form>
+{% endblock %}

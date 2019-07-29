@@ -20,7 +20,7 @@ UPLOAD_FOLDER = os.path.join(
 
 # Database configuration
 DATABASE_HOSTNAME = 'localhost'
-DATABASE_NAME = 'susod'
-DATABASE_USERNAME = 'susod_user'
+DATABASE_NAME = 'dbSUSOD'
+DATABASE_USERNAME = 'susod'
 DATABASE_PASSWORD = 'password'
 

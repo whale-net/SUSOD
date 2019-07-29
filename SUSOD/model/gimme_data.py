@@ -30,8 +30,6 @@ def giveme_data(information):
 	"""
 	cursor = get_db().cursor();
 
-	print('INFORMATION', information)
-
 	#https://www.w3schools.com/python/python_mysql_insert.asp
 	sql = """
 		INSERT INTO test(information)

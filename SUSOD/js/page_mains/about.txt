@@ -1,0 +1,7 @@
+name files in here after folders in SUSOD/js
+these are the entry points for our "react pages"
+
+e.g.
+page_groups/users.jsx
+is named after users/index.jsx and what not
+

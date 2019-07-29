@@ -1,7 +1,7 @@
 """
-SUSOP python package config.
+SUSOD python package config.
 
-Author: alex harding
+Author: Alex Harding <alex.harding@whale-net.net>
 """
 
 from setuptools import setup

@@ -7,6 +7,5 @@ Really the world is your oyster here but this module
 is intended to serve your view pages.
 """
 
-#example
-from SUSOD.views.example_page import show_example_page
-
+from .index import show_index
+from .user import *
