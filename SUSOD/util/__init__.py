@@ -9,3 +9,5 @@ from .password import password_db_string_create
 from .password import password_db_string_verify
 # not publically exposed
 # from .password import generate_hash
+
+from .user_permissions import *

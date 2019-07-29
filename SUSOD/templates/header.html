@@ -9,9 +9,17 @@
 		<div class="header">
 			<table>
 				<tr>
-					<td>hello 1</td>
-					<td>hello 2</td>
-					<td>hello 3</td>
+					<td>this</td>
+					<td>will</td>
+					<td>become</td>
+					<td>react</td>
+					<td>
+						{% if username == None %}
+						<a href="{{ url_for('show_user_login') }}">login</a>	
+						{% else %}
+						<a href="{{ url_for('api_user_logout') }}">logout</a>
+						{% endif %}
+					</td>
 				</tr>
 			</table>
 		</div>

@@ -8,5 +8,4 @@ is intended to serve your view pages.
 """
 
 from .index import show_index
-# remove after multi page test
-from .index import show_user
+from .user import *

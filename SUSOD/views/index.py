@@ -5,20 +5,15 @@ Used to make sure flask app runs.
 """
 import flask
 import SUSOD
+from SUSOD.util import *
+
+# TODO: move to index module
+# this is here for testing right now
 
 @SUSOD.app.route('/')
 def show_index():
 	""" Display /example page."""
 
-	context = {}
+	context = get_login_context()
 	
 	return flask.render_template('index.html', **context)
-
-# REMOVE THIS AFTER MULTI PAGE TEST
-@SUSOD.app.route('/user')
-def show_user():
-	""" Display /example page."""
-
-	context = {}
-	
-	return flask.render_template('user.html', **context)
