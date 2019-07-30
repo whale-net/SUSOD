@@ -15,3 +15,4 @@ app.config.from_object('SUSOD.config')
 import SUSOD.controller
 import SUSOD.model
 import SUSOD.views
+import SUSOD.util
