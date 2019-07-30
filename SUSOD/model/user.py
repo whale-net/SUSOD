@@ -3,7 +3,7 @@ Handles login/logout/create/delete requests.
 """
 import flask
 import SUSOD
-from SUSOD.util import *
+import SUSOD.util
 
 from SUSOD.model.db import get_db
 
@@ -13,12 +13,12 @@ def model_user_login(username, password):
 	"""
 	verifies user login
 	"""
-	cursor = get_db().cursor()
+	cursor = get_db().cursor(dictionary=True)
 
 	#https://www.w3schools.com/python/python_mysql_insert.asp
 	sql = """
-		SELECT * FROM Users U
-		WHERE U.username = (%s)
+		SELECT U.Password FROM Users U
+		WHERE U.Username = (%s)
 		"""
 
 	cursor.execute(sql, (username,))
@@ -26,11 +26,11 @@ def model_user_login(username, password):
 	# unique index on username, if this returns more than 1...
 	user_info = cursor.fetchone()
 	
-	# TODO use dict cursors so we can get col names
-	if (password_db_string_verify(password, user_info[2])):
-		login_user(username)
+	if (SUSOD.util.password_db_string_verify(password, user_info['Password'])):
+		SUSOD.util.login_user(username)
+		return
 	else:
-		return None
+		raise Exception('unable to login as user: \'{}\''.format(username))
 	
 
 
@@ -40,8 +40,7 @@ def model_user_create(username, password1, password2):
 	creates user in db
 	"""
 	if password1 != password2:
-		# TODO throw exception
-		return None
+		raise Exception('passwords not equal')
 
 	cursor = get_db().cursor()
 	sql = """
@@ -49,11 +48,11 @@ def model_user_create(username, password1, password2):
 		VALUES (%s, %s)
 		"""
 
-	password = password_db_string_create(password1)
+	password = SUSOD.util.password_db_string_create(password1)
 	try:
 		cursor.execute(sql, (username, password))
 	except:
-		return None
+		raise Exception('unable to create user: \'{}\''.format(username))
 
-	login_user(username)
+	SUSOD.util.login_user(username)
 	return
