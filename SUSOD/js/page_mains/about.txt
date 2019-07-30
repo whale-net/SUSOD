@@ -5,3 +5,4 @@ e.g.
 page_groups/users.jsx
 is named after users/index.jsx and what not
 
+use ReactDOM.render
