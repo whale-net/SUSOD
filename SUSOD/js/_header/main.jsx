@@ -61,7 +61,7 @@ class Header extends Component {
 		this.state.menuOptions.forEach((option) => {
 			menuOptionList.push(
 				<Nav.Item key={option.MenuOptionID}>
-					<Nav.Link href="{option.MenuLink}">{option.MenuText}</Nav.Link>
+					<Nav.Link href={option.MenuLink}>{option.MenuText}</Nav.Link>
 				</Nav.Item>
 			);
 		});
