@@ -3,28 +3,29 @@
 	<head>
 		<title>SUSOD</title>
 		<link rel="stylesheet" href="{{ url_for('static', filename='./css/style.css') }}" />
-		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
 	</head>
 	<body>
-		<div class="header">
-			<table>
-				<tr>
-					<td>this</td>
-					<td>will</td>
-					<td>become</td>
-					<td>react</td>
-					<td>
-						{% if username == None %}
-						<a href="{{ url_for('show_user_login') }}">login</a>	
-						{% else %}
-						<a href="{{ url_for('api_user_logout') }}">logout</a>
-						{% endif %}
-					</td>
-				</tr>
-			</table>
+		<div class="container justify-content-md-center">
+			<div class="row">
+				<div class="col">
+					<div id="reactHeader"></div>
+					<script src="{{ url_for('static', filename='./js/_header.js') }}"></script>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					{% block content %}
+					{% endblock %}
+				</div>
+			</div>
 		</div>
-		{% block content %}
-		{% endblock %}
+		<div class="row">
+			<div class="col">
+				<div id="reactFooter"></div>
+				<script src="{{ url_for('static', filename='./js/_footer.js') }}"></script>
+			</div>
+		</div>
 		<script src="{{ url_for('static', filename='./js/vendor.js') }}"></script>
 	</body>
 </html>

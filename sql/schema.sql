@@ -107,6 +107,20 @@ CREATE TABLE IF NOT EXISTS `DataFileTypes` (
 
 -- Data exporting was unselected.
 
+-- Dumping structure for table dbSUSOD.MenuOptions
+CREATE TABLE IF NOT EXISTS `MenuOptions` (
+  `MenuOptionID` int(11) NOT NULL AUTO_INCREMENT,
+  `MenuText` varchar(50) NOT NULL,
+  `MenuLink` varchar(50) NOT NULL,
+  `IsVisible` bit(1) NOT NULL DEFAULT b'1',
+  `Order` int(11) DEFAULT NULL,
+  `CreatedDate` datetime NOT NULL DEFAULT current_timestamp(),
+  `UpdatedDate` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`MenuOptionID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
+
+-- Data exporting was unselected.
+
 -- Dumping structure for table dbSUSOD.Playlists
 CREATE TABLE IF NOT EXISTS `Playlists` (
   `PlaylistID` int(11) NOT NULL AUTO_INCREMENT,
@@ -132,6 +146,7 @@ CREATE TABLE IF NOT EXISTS `Playlists` (
 CREATE TABLE IF NOT EXISTS `PlaylistsSongs` (
   `PlaylistID` int(11) NOT NULL,
   `SongID` int(11) NOT NULL,
+  `AddedDate` datetime NOT NULL DEFAULT current_timestamp(),
   UNIQUE KEY `IXU_PlaylistsSongs_PlaylistIDSongID` (`PlaylistID`,`SongID`),
   KEY `IX_PlaylistsSongs_SongID` (`SongID`) USING BTREE,
   KEY `IX_PlaylistsSongs_PlaylistID` (`PlaylistID`),
