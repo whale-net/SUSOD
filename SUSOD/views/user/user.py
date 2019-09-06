@@ -3,7 +3,7 @@ User view.
 """
 import flask
 import SUSOD
-from SUSOD.util import *
+from SUSOD.util import get_login_context, has_permissions
 
 @SUSOD.app.route('/user/login')
 def show_user_login():
