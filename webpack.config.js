@@ -6,7 +6,7 @@ const getAliases = require('./webpack.util.js').getAliases;
 
 const SUSOD_DIR = resolve('SUSOD');
 const JS_DIR = resolve(SUSOD_DIR,'js');
-const PAGE_MAINS_DIRNAME = 'page_mains';
+const PAGE_MAINS_DIRNAME = '_routes';
 const JS_PAGEMAINS_DIR = resolve(JS_DIR, PAGE_MAINS_DIRNAME);
 const STATIC_DIR = resolve(SUSOD_DIR, 'static');
 const JS_EXTENSIONS = ['.js', '.jsx']
