@@ -7,5 +7,5 @@ Really the world is your oyster here but this module
 is intended to serve your view pages.
 """
 
-from .index import show_index
+from .index import * # these probably shouldn't be * or we need to define __all__
 from .user import *
