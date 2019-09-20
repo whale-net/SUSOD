@@ -13,7 +13,14 @@ class Index extends Component {
 	}
 
 	componentDidMount() {
-		// REST api calls
+		fetch(this.props.url, { credentials: 'same-origin'})
+			.then((response) => {
+				if (!response.ok) throw Error(response.statusText);
+				return response.json();
+			})
+			.then((data) => {
+				this.setState(data);
+			});
 	}
 
 	render() {

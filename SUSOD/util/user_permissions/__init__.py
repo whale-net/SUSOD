@@ -2,11 +2,15 @@
 user_permissions module
 """
 
-from .user import login_user
-from .user import logout_user
+# from .user import login_user
+# from .user import logout_user
 
-from .decorators import has_permissions
+# from .decorators import has_permissions
 
-from .util import get_username
-from .util import get_login_context
-from .util import is_logged_in
+# from .util import get_username
+# from .util import get_login_context
+# from .util import is_logged_in
+
+from .user import *
+from .decorators import *
+from .util import *

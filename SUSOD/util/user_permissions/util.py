@@ -14,6 +14,7 @@ def is_logged_in():
 
 def get_login_context():
 	context = {
-		'username': get_username()
+		'username': get_username(),
+		'loggin_status': is_logged_in()
 	}
 	return context
