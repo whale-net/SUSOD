@@ -9,3 +9,4 @@ from .decorators import has_permissions
 
 from .util import get_username
 from .util import get_login_context
+from .util import is_logged_in

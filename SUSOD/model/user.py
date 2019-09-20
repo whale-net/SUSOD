@@ -44,15 +44,16 @@ def model_user_create(username, password1, password2):
 
 	cursor = get_db().cursor()
 	sql = """
-		INSERT INTO Users (Username, Password)
-		VALUES (%s, %s)
+		INSERT INTO Users (Username, Password, FirstName, MiddleName, LastName)
+		VALUES (%s, %s, %s, %s, %s)
 		"""
 
 	password = SUSOD.util.password_db_string_create(password1)
 	try:
-		cursor.execute(sql, (username, password))
+		cursor.execute(sql, (username, password, None, None, 'TestLastName'))
 	except:
-		raise Exception('unable to create user: \'{}\''.format(username))
+		raise
+		#raise Exception('unable to create user: \'{}\''.format(username))
 
 	SUSOD.util.login_user(username)
 	return

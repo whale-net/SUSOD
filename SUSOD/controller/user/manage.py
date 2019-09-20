@@ -18,10 +18,15 @@ def api_user_login():
 	"""
 	form = flask.request.form
 
+	if is_logged_in():
+		return flask.redirect(flask.url_for('show_index'))
+
 	if 'username' not in form or 'password' not in form:
 		return flask.redirect(flask.url_for('show_user_login'))
-
-	model_user_login(form['username'], form['password'])
+	try:
+		model_user_login(form['username'], form['password'])
+	except:
+		return flask.redirect(flask.url_for('show_user_login')),401
 
 	return flask.redirect(flask.url_for('show_index'))
 
