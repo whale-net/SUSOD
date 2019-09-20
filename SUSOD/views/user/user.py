@@ -21,12 +21,12 @@ def show_user_create():
 	
 	return flask.render_template('user/create.html', **context)
 
+
 @SUSOD.app.route('/user/')
+@util.has_permissions
 def show_user_index():
 	""" Display /example page."""
 
 	context = util.get_login_context()
-
-
 	
 	return flask.render_template('user/index.html', **context)

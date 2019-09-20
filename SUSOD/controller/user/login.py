@@ -3,7 +3,7 @@ Login endpoint.
 """
 import flask
 import SUSOD
-from SUSOD.util import *
+from SUSOD import util
 
 from SUSOD.model.user import model_user_login, model_user_create
 
@@ -55,9 +55,9 @@ def api_user_logout():
 
 	Will setup the user's flask header.
 	"""
-	# TODO make POST enabled too?
+	# TODO make POST enabled once logout button exists...
 
-	logout_user()
+	util.logout_user()
 
 	return flask.redirect(flask.url_for('show_user_login'))
 
