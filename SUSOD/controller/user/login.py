@@ -4,8 +4,7 @@ Login endpoint.
 import flask
 import SUSOD
 from SUSOD import util
-
-from SUSOD.model.user import model_user_login, model_user_create
+from SUSOD import model
 
 # TODO better logic handling on bad login
 
@@ -18,13 +17,14 @@ def api_user_login():
 	"""
 	form = flask.request.form
 
-	if is_logged_in():
+	if util.is_logged_in():
 		return flask.redirect(flask.url_for('show_index'))
 
 	if 'username' not in form or 'password' not in form:
 		return flask.redirect(flask.url_for('show_user_login'))
+
 	try:
-		model_user_login(form['username'], form['password'])
+		model.user_login(form['username'], form['password'])
 	except:
 		return flask.redirect(flask.url_for('show_user_login')),401
 
@@ -43,7 +43,7 @@ def api_user_create():
 	if 'username' not in form or 'password1' not in form or 'password2' not in form:
 		return flask.redirect(flask.url_for('show_user_login'))
 
-	model_user_create(form['username'], form['password1'], form['password2'])
+	model.user_create(form['username'], form['password1'], form['password2'])
 
 	return flask.redirect(flask.url_for('show_index'))
 

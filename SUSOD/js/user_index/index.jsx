@@ -7,9 +7,7 @@ import PropTypes from 'prop-types';
 class Index extends Component {
 	constructor() {
 		super();
-		this.state = {
-			
-		};
+		this.state = {};
 	}
 
 	componentDidMount() {

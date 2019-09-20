@@ -8,7 +8,7 @@ import SUSOD.util
 
 from SUSOD.model.db import get_db
 
-def model_get_menu_options():
+def get_menu_options():
 	"""
 	returns list of menu options
 	"""

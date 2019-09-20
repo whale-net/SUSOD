@@ -3,13 +3,14 @@ Handles login/logout/create/delete requests.
 """
 import flask
 import SUSOD
-import SUSOD.util
+#import SUSOD.util
+from SUSOD import util
 
-from SUSOD.model.db import get_db
+from .db import get_db
 
 # TODO need better returns and logic in case of failure
 
-def model_user_login(username, password):
+def user_login(username, password):
 	"""
 	verifies user login
 	"""
@@ -17,7 +18,8 @@ def model_user_login(username, password):
 
 	#https://www.w3schools.com/python/python_mysql_insert.asp
 	sql = """
-		SELECT U.Password FROM Users U
+		SELECT U.Password, U.UserID, U.Username
+		FROM Users U
 		WHERE U.Username = (%s)
 		"""
 
@@ -25,9 +27,10 @@ def model_user_login(username, password):
 
 	# unique index on username, if this returns more than 1...
 	user_info = cursor.fetchone()
+
 	
-	if (SUSOD.util.password_db_string_verify(password, user_info['Password'])):
-		SUSOD.util.login_user(username)
+	if (util.password_db_string_verify(password, user_info['Password'])):
+		util.login_user(user_info['UserID'], user_info['Username'])
 		return
 	else:
 		raise Exception('unable to login as user: \'{}\''.format(username))
@@ -35,7 +38,7 @@ def model_user_login(username, password):
 
 
 
-def model_user_create(username, password1, password2):
+def user_create(username, password1, password2):
 	"""
 	creates user in db
 	"""
@@ -48,7 +51,7 @@ def model_user_create(username, password1, password2):
 		VALUES (%s, %s, %s, %s, %s)
 		"""
 
-	password = SUSOD.util.password_db_string_create(password1)
+	password = util.password_db_string_create(password1)
 	try:
 		cursor.execute(sql, (username, password, None, None, 'TestLastName'))
 	except:
@@ -57,3 +60,23 @@ def model_user_create(username, password1, password2):
 
 	SUSOD.util.login_user(username)
 	return
+
+
+def user_index_setup(UserID):
+	"""
+	returns information for user index
+	"""
+	cursor = get_db().cursor(dictionary=True)
+	sql = """
+		SELECT U.Username, U.FirstName, U.MiddleName, U.LastName
+			, U.BirthDate
+		FROM Users U
+		WHERE U.UserID = (%s)
+		"""
+	try:
+		cursor.execute(sql, (UserID,))
+		data = cursor.fetchone()
+		print(data)
+		return data
+	except:
+		raise

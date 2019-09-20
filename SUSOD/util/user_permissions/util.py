@@ -3,6 +3,7 @@ Utility functions for handling login permissions.
 """
 import flask
 
+from .user import get_UserID
 
 def get_username():
 	if 'username' not in flask.session:
@@ -10,11 +11,12 @@ def get_username():
 	return flask.session['username']
 
 def is_logged_in():
-	return 'username' in flask.session
+	return 'Username' in flask.session
 
 def get_login_context():
 	context = {
-		'username': get_username(),
-		'loggin_status': is_logged_in()
+		'Username': get_username(),
+		'login_status': is_logged_in(),
+		'UserID': get_UserID()
 	}
 	return context

@@ -8,32 +8,27 @@ import Nav from 'react-bootstrap/Nav';
 
 class Header extends Component {
 
-	static getMenuOptions(callback) {
+	constructor(props) {
+		super(props);
+		this.state = {};
+
+		this.handleChange = this.handleChange.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
+		this.initState = this.initState.bind(this);
+	}
+
+	componentWillMount() {
+		// REST api calls
+		//Header.getInitialState(this.initState);
 		fetch('/api/_header/', {credentials: 'same-origin'})
 			.then((response) => {
 				if (!response.ok) throw Error(response.statusText);
 				return response.json();
 			})
 			.then((data) => {
-				callback(data);
+				this.initState(data);
 			})
 			.catch(error => console.log(error));
-	}
-
-	constructor(props) {
-		super(props);
-		this.state = {
-			menuOptions: null
-		};
-
-		this.handleChange = this.handleChange.bind(this);
-		this.handleSubmit = this.handleSubmit.bind(this);
-		this.initMenuOptionState = this.initMenuOptionState.bind(this);
-	}
-
-	componentWillMount() {
-		// REST api calls
-		Header.getMenuOptions(this.initMenuOptionState);
 	}
 
 	handleChange(event) {
@@ -44,21 +39,19 @@ class Header extends Component {
 		event.preventDefault();
 	}
 
-	initMenuOptionState(data) {
-		// TODO make this merge not re-assign
-		this.setState({
-			menuOptions: data
-		});
+	initState(data) {
+		// use this function to set up initial state
+		this.setState(data);
 	}
 
 	render() {
 		// prevent render until after fetch
-		if (!this.state.menuOptions)
+		if (!this.state.menu)
 			return <div />
-
+		console.log(this.state);
 		// TODO: make key not based on pk of db?
 		const menuOptionList = [];
-		this.state.menuOptions.forEach((option) => {
+		this.state.menu.forEach((option) => {
 			menuOptionList.push(
 				<Nav.Item key={option.MenuOptionID}>
 					<Nav.Link href={option.MenuLink}>{option.MenuText}</Nav.Link>
