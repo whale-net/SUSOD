@@ -13,7 +13,7 @@ def has_permissions(func):
 	@wraps(func)
 	def wrapper(*args, **kwargs):
 		if not is_logged_in():
-			return flask.redirect(flask.url_for('show_user_login'))
+			return flask.redirect(flask.url_for('show_user_login')), 401
 			# return flask.abort(403)
 		else:
 			return func(*args, **kwargs)

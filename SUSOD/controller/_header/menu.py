@@ -3,18 +3,19 @@ functions for creating menu
 """
 import flask
 import SUSOD
-import json
+from SUSOD import util
+from SUSOD import model
 
-from SUSOD.util import has_permissions
-from SUSOD.model import model_get_menu_options
 
 @SUSOD.app.route('/api/_header/', methods=['GET'])
-@has_permissions
+@util.has_permissions
 def api__header_get_menu_options():
 	"""
 	Return json string of menu options
 	"""
-	context = model_get_menu_options()
+	context = {
+		'menu': model.get_menu_options()
+	}
 	
 	
-	return json.dumps(context)
+	return flask.jsonify(**context)

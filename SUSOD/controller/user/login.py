@@ -3,9 +3,8 @@ Login endpoint.
 """
 import flask
 import SUSOD
-from SUSOD.util import *
-
-from SUSOD.model.user import model_user_login, model_user_create
+from SUSOD import util
+from SUSOD import model
 
 # TODO better logic handling on bad login
 
@@ -18,10 +17,16 @@ def api_user_login():
 	"""
 	form = flask.request.form
 
+	if util.is_logged_in():
+		return flask.redirect(flask.url_for('show_index'))
+
 	if 'username' not in form or 'password' not in form:
 		return flask.redirect(flask.url_for('show_user_login'))
 
-	model_user_login(form['username'], form['password'])
+	try:
+		model.user_login(form['username'], form['password'])
+	except:
+		return flask.redirect(flask.url_for('show_user_login')),401
 
 	return flask.redirect(flask.url_for('show_index'))
 
@@ -38,7 +43,7 @@ def api_user_create():
 	if 'username' not in form or 'password1' not in form or 'password2' not in form:
 		return flask.redirect(flask.url_for('show_user_login'))
 
-	model_user_create(form['username'], form['password1'], form['password2'])
+	model.user_create(form['username'], form['password1'], form['password2'])
 
 	return flask.redirect(flask.url_for('show_index'))
 
@@ -50,9 +55,9 @@ def api_user_logout():
 
 	Will setup the user's flask header.
 	"""
-	# TODO make POST enabled too?
+	# TODO make POST enabled once logout button exists...
 
-	logout_user()
+	util.logout_user()
 
 	return flask.redirect(flask.url_for('show_user_login'))
 
