@@ -79,3 +79,21 @@ def user_index_setup(UserID):
 		return data
 	except:
 		raise
+
+def user_index_update(UserID, user_info):
+	"""
+	updates user information with information from page
+	"""
+
+	cursor = get_db().cursor(dictionary=True)
+	sql = """
+		UPDATE Users U
+		SET U.FirstName = (%s)
+		, U.LastName = (%s)
+		WHERE U.UserID = (%s)
+		"""
+
+	try:
+		cursor.execute(sql, (user_info['FirstName'], user_info['LastName'], UserID))
+	except:
+		raise
