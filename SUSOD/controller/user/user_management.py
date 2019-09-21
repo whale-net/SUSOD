@@ -17,6 +17,5 @@ def api_user_index():
 		**model.user_index_setup(util.get_UserID())
 	}
 
-	print(context)
 	return flask.jsonify(**context)
 

@@ -64,7 +64,7 @@ def user_create(username, password1, password2):
 
 def user_index_setup(UserID):
 	"""
-	returns information for user index
+	returns information for user index page.
 	"""
 	cursor = get_db().cursor(dictionary=True)
 	sql = """
@@ -76,7 +76,6 @@ def user_index_setup(UserID):
 	try:
 		cursor.execute(sql, (UserID,))
 		data = cursor.fetchone()
-		print(data)
 		return data
 	except:
 		raise

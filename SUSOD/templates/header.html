@@ -15,8 +15,11 @@
 			</div>
 			<div class="row">
 				<div class="col">
-					{% block content %}
-					{% endblock %}
+					<!-- container keeps the elements, err, contained -->
+					<div class="container" style="background-color: lightgrey;">
+						{% block content %}
+						{% endblock %}
+					</div>
 				</div>
 			</div>
 		</div>

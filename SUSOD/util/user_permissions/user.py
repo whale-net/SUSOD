@@ -12,4 +12,7 @@ def logout_user():
 	return flask.session.pop('Username', None)
 	
 def get_UserID():
-	return flask.session['UserID']
+	if 'UserID' in flask.session:
+		return flask.session['UserID']
+	else:
+		return None
