@@ -17,6 +17,9 @@ setup(
 		'pydocstyle',
 		'gmusicapi',
 		'mysql-connector',
-		'nodeenv'
+		'nodeenv',
+		'pymysql', #for dataset
+		'dataset',
+		'ffmpeg-python'
 	],
 )

@@ -9,3 +9,4 @@ Export model functions to be used to get our lovely data.
 from .user import *
 from .util import *
 from ._header import *
+from .entity import *

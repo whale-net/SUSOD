@@ -12,10 +12,13 @@ def api_user_index():
 
 	login_context = util.get_login_context()
 
+	data = model.user_index_setup(util.get_UserID())
 	context = { 
 		**login_context,
-		**model.user_index_setup(util.get_UserID())
+		**data
 	}
+
+	model.get_file(1)
 
 	return flask.jsonify(**context)
 

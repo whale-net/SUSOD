@@ -6,7 +6,7 @@ import SUSOD
 #import SUSOD.util
 from SUSOD import util
 
-from .db import get_db
+from .db import *
 
 # TODO need better returns and logic in case of failure
 
@@ -71,12 +71,12 @@ def user_index_setup(UserID):
 		SELECT U.Username, U.FirstName, U.MiddleName, U.LastName
 			, U.BirthDate
 		FROM Users U
-		WHERE U.UserID = (%s)
+		WHERE U.UserID = :UserID
 		"""
 	try:
-		cursor.execute(sql, (UserID,))
-		data = cursor.fetchone()
-		return data
+		db = db_connection()
+		data = db.query(sql, UserID=UserID)
+		return next(data)
 	except:
 		raise
 
@@ -85,15 +85,16 @@ def user_index_update(UserID, user_info):
 	updates user information with information from page
 	"""
 
-	cursor = get_db().cursor(dictionary=True)
-	sql = """
-		UPDATE Users U
-		SET U.FirstName = (%s)
-		, U.LastName = (%s)
-		WHERE U.UserID = (%s)
-		"""
-
 	try:
-		cursor.execute(sql, (user_info['FirstName'], user_info['LastName'], UserID))
+		# cursor.execute(sql, (user_info['FirstName'], user_info['LastName'], UserID))
+		db = db_connection()
+		update_dict = dict(
+			UserID = UserID,
+			FirstName = user_info['FirstName'],
+			LastName = user_info['LastName']
+		)
+
+		db['Users'].update(update_dict, ['UserID'])
+		return user_index_setup(UserID)
 	except:
 		raise
