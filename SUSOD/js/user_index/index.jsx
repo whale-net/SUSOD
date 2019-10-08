@@ -10,6 +10,9 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Toast from 'react-bootstrap/Toast';
 
+import FileInput from './fileinput';
+
+
 class Index extends Component {
 	constructor() {
 		super();
@@ -77,6 +80,9 @@ class Index extends Component {
 								</Col>
 							</Form.Row>
 							<Form.Row className="p-3">
+								<Form.Group as={Col}>
+									<FileInput url={this.props.url + 'avatar'} />
+								</Form.Group>
 								<Form.Group as={Col}>
 									<InputGroup className="border" >
 										<InputGroup.Prepend>

@@ -35,3 +35,13 @@ def api_user_index_update():
 
 	return flask.jsonify(**context)
 
+@SUSOD.app.route('/api/user/avatar', methods=['POST'])
+@util.has_permissions
+def api_user_avatar_update():
+	file = flask.request.files['file']
+	print(file)
+	model.insert_file(file)
+
+	
+
+	return util.http_json_200()
