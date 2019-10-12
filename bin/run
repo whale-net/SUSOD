@@ -1,5 +1,5 @@
 # SUSOD Dev Start Script
-
+. env/bin/activate
 export FLASK_DEBUG=True
 export FLASK_APP=SUSOD
 # I don't believe this is needed
