@@ -39,6 +39,8 @@ def api_user_index_update():
 @util.has_permissions
 def api_user_avatar_update():
 	file = flask.request.files['file']
-	model.insert_file(file)
+
+	entity = model.Entity()
+	entity.create(file)
 
 	return util.http_json_200()
