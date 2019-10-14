@@ -59,7 +59,7 @@ class Entity:
 		self.__file_bytes = self._file.read()
 		self.file_size = len(self.__file_bytes)
 		self._entity_parts = []	
-		for file_part_idx in range(0, math.ceil(1.0 * self.get_file_size() / Entity.MAX_FILE_PART_SIZE) - 1):
+		for file_part_idx in range(0, math.ceil(1.0 * self.get_file_size() / Entity.MAX_FILE_PART_SIZE)):
 			entity_part_bytes = self.__file_bytes[(file_part_idx * Entity.MAX_FILE_PART_SIZE):((file_part_idx + 1) * Entity.MAX_FILE_PART_SIZE)]
 			entity_part = EntityPart(entity_part_bytes, file_part_idx)
 			self._entity_parts.append(entity_part)
@@ -70,8 +70,8 @@ class Entity:
 			if self.EntityID == None:
 				self._new_entity(entity_part)
 			else:
+				self._append_entity(entity_part)
 				continue
-				#self._append_entity(entity_part)
 
 	def _new_entity(self, entity_part):
 		cursor = get_db().cursor()
@@ -110,7 +110,7 @@ class EntityPart:
 	def set_EntityPartID(self, EntityPartID):
 		self.EntityPartID = EntityPartID
 
-	def get_EntityPartID(self, EntityPartID):
+	def get_EntityPartID(self):
 		return self.EntityPartID
 
 	def get_FilePart_db(self):

@@ -36,6 +36,20 @@ Web Service for running a local jukebox.
 ### Finally
 * Execute `./bin/run` and visit `http://localhost:8000/example`
 
+at some point update this to include
+https://stackoverflow.com/questions/1884859/lost-connection-to-mysql-server-during-query
+The mysql docs have a whole page dedicated to this error:
+http://dev.mysql.com/doc/refman/5.0/en/gone-away.html
+
+of note are
+
+ - You can also get these errors if you send a query to the server that is incorrect or too large. If mysqld receives a packet that is too large or out of order, it assumes that something has gone wrong with the client and closes the connection. If you need big queries (for example, if you are working with big BLOB columns), you can increase the query limit by setting the server's max_allowed_packet variable, which has a default value of 1MB. You may also need to increase the maximum packet size on the client end. More information on setting the packet size is given in Section B.5.2.10, “Packet too large”.
+ 
+
+ - You can get more information about the lost connections by starting mysqld with the --log-warnings=2 option. This logs some of the disconnected errors in the hostname.err file
+
+
+
 
 # LICENSE
 It's MIT. If somehow there is something you want to use in this repository, go ahead and use it, but let me know. I would just like to know how and where you use it.
