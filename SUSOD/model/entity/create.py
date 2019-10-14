@@ -36,7 +36,6 @@ class Entity:
 		if file == None:
 			raise ValueError("file is not valid")
 		self._file = file
-		print(type(self._file))
 
 		if file_name == None:
 			try:
@@ -61,12 +60,12 @@ class Entity:
 		self._entity_parts = []	
 		for file_part_idx in range(0, math.ceil(1.0 * self.get_file_size() / Entity.MAX_FILE_PART_SIZE)):
 			entity_part_bytes = self.__file_bytes[(file_part_idx * Entity.MAX_FILE_PART_SIZE):((file_part_idx + 1) * Entity.MAX_FILE_PART_SIZE)]
-			entity_part = EntityPart(entity_part_bytes, file_part_idx)
+			entity_part = EntityPart(entity_part_bytes, file_part_idx + 1)
 			self._entity_parts.append(entity_part)
 			
 		# Begin writing to DB
-		print(self._entity_parts)
 		for entity_part in self._entity_parts:
+			print(entity_part.get_InsertOrder())
 			if self.EntityID == None:
 				self._new_entity(entity_part)
 			else:
@@ -84,7 +83,7 @@ class Entity:
 
 	def _append_entity(self, entity_part):
 		cursor = get_db().cursor()
-		args = (self.EntityID, entity_part.get_FilePart_db(), entity_part.get_InsertOrder(), 3)
+		args = (self.EntityID, entity_part.get_FilePart_db(), entity_part.get_InsertOrder(), None)
 		results = cursor.callproc('spAppendEntity', args)
 		entity_part.set_EntityPartID(results[3])
 
