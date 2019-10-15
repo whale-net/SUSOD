@@ -8,14 +8,15 @@ import SUSOD
 import mysql.connector
 import dataset
 
-def get_db():
+def get_db(raw=False):
 	""" Return (or create/return) a mysql connection."""
 	if not hasattr(flask.g, 'db'):
 		flask.g.db = mysql.connector.connect(
 			host=SUSOD.app.config['DATABASE_HOSTNAME'],
 			user=SUSOD.app.config['DATABASE_USERNAME'],
 			passwd=SUSOD.app.config['DATABASE_PASSWORD'],
-			database=SUSOD.app.config['DATABASE_NAME']
+			database=SUSOD.app.config['DATABASE_NAME'],
+			raw=raw
 		)
 
 	return flask.g.db
