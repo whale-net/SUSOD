@@ -6,16 +6,14 @@ import PropTypes from 'prop-types';
 
 
 class FileInput extends React.Component {
-    constructor(props) {
-      super(props)
-      this.uploadFile = this.uploadFile.bind(this);
-    }
-    
-    uploadFile(event) {
-        let file = event.target.files[0];
-        console.log(file);
-        
-        if (file) {
+	constructor(props) {
+	  super(props)
+	  this.uploadFile = this.uploadFile.bind(this);
+	}
+	
+	uploadFile(event) {
+		let file = event.target.files[0];
+		if (file) {
 			let data = new FormData();
 			data.append('file', file);
 			//axios.post('/files', data)...
@@ -31,22 +29,23 @@ class FileInput extends React.Component {
 			})
 			.then((data) => {
 				this.setState(data);
-				console.log('yay');
 			})
 			.catch((error) => {
 				console.log(error);
 				console.log('no');
 			})
-        }
-    }
-    
-    render() {
-      return <span>
-        <input type="file"
-        name="myFile"
-        onChange={this.uploadFile} />
-      </span>
-    }
+		}
+	}
+	
+	render() {
+		return (
+			<span>
+				<input type="file"
+					name="myFile"
+					onChange={this.uploadFile} />
+			</span>
+		)
+	}
 }
 
 
