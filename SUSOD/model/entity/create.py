@@ -86,11 +86,11 @@ class Entity:
 
 		self._file_size = sum([entity_part.Length for entity_part in self._entity_parts])
 		
-		print(f"""
-Entity [{int(self.EntityID)}] inserted in: {(datetime.datetime.now() - insert_start)} 
-	Bytes: {self._file_size}
-	Parts: {len(self._entity_parts)}
-""")
+		print("""
+Entity [{}] inserted in: {} 
+	Bytes: {}
+	Parts: {}
+""".format(int(self.EntityID), (datetime.datetime.now() - insert_start), self._file_size, len(self._entity_parts)))
 
 		# todo handle deleting of entity on fail
 
@@ -168,7 +168,7 @@ class EntityPart:
 		self._cursor.close()
 
 	def _new_entity(self, FileName, file_extension):
-		print(f'New Entity Being Created @ [{str(datetime.datetime.now())}]')
+		print('New Entity Being Created @ [{}]'.format(str(datetime.datetime.now())))
 
 		args = (self.get_FilePart_db(), FileName, file_extension, util.get_UserID(), None, None) # None is for outEntityID, outEntityPartID
 		self._sql_results = self._cursor.callproc('spCreateEntity', args)
@@ -180,10 +180,10 @@ class EntityPart:
 		if self.EntityPartID == None:
 			raise RuntimeError("uh oh, something went fucko when creating the entitypart")
 
-		print(f'Entity [{self.EntityID}] was created @ [{str(datetime.datetime.now())}]')
+		print('Entity [{}] was created @ [{}]'.format(self.EntityID, str(datetime.datetime.now())))
 
 	def _append_entity(self):
-		print(f'Entity [{self.EntityID}] writing Part [{self.InsertOrder}] @ [{str(datetime.datetime.now())}]')
+		print('Entity [{}] writing Part [{}] @ [{}]'.format(self.EntityID, self.InsertOrder, str(datetime.datetime.now())))
 
 		args = (self.EntityID, self.get_FilePart_db(), self.InsertOrder, None)
 		self._sql_results = self._cursor.callproc('spAppendEntity', args)

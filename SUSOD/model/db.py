@@ -28,7 +28,7 @@ def db_connection():
 		password = SUSOD.app.config['DATABASE_PASSWORD']
 		database = SUSOD.app.config['DATABASE_NAME']
 		port = SUSOD.app.config['DATABASE_PORT']
-		flask.g.db_dataset = dataset.connect(f'mysql+pymysql://{username}:{password}@{hostname}:{port}/{database}')
+		flask.g.db_dataset = dataset.connect('mysql+pymysql://{}:{}@{}:{}/{}'.format(username, password, hostname, port, database))
 	return flask.g.db_dataset
 
 
