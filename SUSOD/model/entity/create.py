@@ -1,5 +1,6 @@
 import math
 import datetime
+import functools
 
 import flask
 from werkzeug.utils import secure_filename
@@ -16,15 +17,33 @@ class Entity:
 
 	MAX_FILE_PART_SIZE = 16777216 - 1 # 16 MB / MEDIUMBLOB -> needs to be 1 byte less else sql connector goes dead
 
-	def __init__(self):
-		self.EntityID = None
-		self.Description = None
-		self.EntityTypeID = None
-		self.Filename = None
+	def __init__(self, EntityID=None):
+		self._EntityID = EntityID
+		self._Description = None
+		self._EntityTypeID = None
+		self._Filename = None
 
-		self._file_bytes = None 
+		self._entity_parts = []
 
-	# unsure if we should have a constructor to create a file automatically, seems like it could cause problems
+		if self.EntityID != None:
+			self._load_entity()
+
+	@property
+	def EntityID(self):
+		return self._EntityID
+
+	@property
+	def Description(self):
+		return self._Description
+
+	@property
+	def EntityTypeID(self):
+		return self._EntityTypeID
+
+	@property
+	def Filename(self):
+		return self._Filename
+
 
 	def get_file_size(self):
 		return self.file_size
@@ -35,50 +54,48 @@ class Entity:
 		"""
 		if file == None:
 			raise ValueError("file is not valid")
-		self._file = file
-
-		if file_name == None:
-			try:
-				file_name = self._file.filename
-			except:
-				file_name = None
-		file_name = secure_filename(file_name)
-		self.Filename = file_name
 
 		if self.EntityID != None:
 			raise RuntimeError("Entity - Entity already exists")
+
+		if file_name == None:
+			try:
+				file_name = file.filename
+			except:
+				file_name = None
+		file_name = secure_filename(file_name)
+		self._Filename = file_name
+
 
 		# surely there has to be a better way to do this
 		self.file_extension = self.Filename.split('.')[-1]
 		if len(self.file_extension) > 5: # probably not an extension, made up number, can change or remove
 			self.file_extension = None
 
-
-		# break up file
-		self.__file_bytes = self._file.read()
-		# write first to get entity ID
-		first_entity_part = EntityPart(self.__file_bytes[0:Entity.MAX_FILE_PART_SIZE], EntityPart.INSERT_ORDER_BEGIN)
-		first_entity_part.write_to_db()
-		self.EntityID = first_entity_part.get_EntityID()
-		self._entity_parts = [first_entity_part]
-		self.file_size = len(self.__file_bytes)
-		for file_part_idx in range(1, math.ceil(1.0 * self.get_file_size() / Entity.MAX_FILE_PART_SIZE)):
-			entity_part_bytes = self.__file_bytes[(file_part_idx * Entity.MAX_FILE_PART_SIZE):((file_part_idx + 1) * Entity.MAX_FILE_PART_SIZE)]
-			self._entity_parts.append(EntityPart(entity_part_bytes, file_part_idx + EntityPart.INSERT_ORDER_BEGIN, EntityID=self.EntityID))
-			
-		# Begin writing to DB
 		insert_start = datetime.datetime.now()
-		for entity_part in self._entity_parts:
+		
+		buffer = file.read(Entity.MAX_FILE_PART_SIZE)
+		self._insert_order = EntityPart.INSERT_ORDER_BEGIN
+		while len(buffer) > 0:
+			entity_part = EntityPart(buffer, self._insert_order, self.EntityID)
 			entity_part.write_to_db()
+			self._EntityID = entity_part.get_EntityID()
+			self._entity_parts.append(entity_part)
+			buffer = file.read(Entity.MAX_FILE_PART_SIZE)
+			self._insert_order += 1
+
+		self._file_size = sum([entity_part.Length for entity_part in self._entity_parts])
 		
 		print(f"""
 Entity [{int(self.EntityID)}] inserted in: {(datetime.datetime.now() - insert_start)} 
-	Bytes: {self.file_size}
+	Bytes: {self._file_size}
 	Parts: {len(self._entity_parts)}
 """)
 
 		# todo handle deleting of entity on fail
 
+	def _load_entity(self):
+		return None
 
 
 
@@ -88,19 +105,41 @@ class EntityPart:
 	# In case we ever want to prepend files?
 	INSERT_ORDER_BEGIN = 1
 
-	def __init__(self, FilePart, InsertOrder, EntityID=None, EntityPartID=None):
-		self.EntityPartID = EntityPartID
-		self.EntityID = EntityID
-		self.InsertOrder = InsertOrder
-		self.FilePart = FilePart
+	def __init__(self, FilePart, InsertOrder, EntityID, EntityPartID=None):
+		self._FilePart = FilePart
+		self._InsertOrder = InsertOrder
+		self._EntityID = EntityID
+		self._EntityPartID = EntityPartID
+
+		self._Length = len(self._FilePart)
 
 		if self.EntityID == None and self.InsertOrder == EntityPart.INSERT_ORDER_BEGIN:
-			self.NewEntity = True
+			self._NewEntity = True
 		else:
-			self.NewEntity = False
+			self._NewEntity = False
 
 		self._cursor = None
 
+	@property
+	def FilePart(self):
+		return self._FilePart
+	
+	@property
+	def InsertOrder(self):
+		return self._InsertOrder
+	
+	@property
+	def EntityID(self):
+		return self._EntityID
+	
+	@property
+	def EntityPartID(self):
+		return self._EntityPartID
+	
+	@property
+	def Length(self):
+		return self._Length
+	
 	# todo with defaults
 	# def __init__(self, EntityPartID, InsertOrder, FilePart):
 	# 	self.EntityPartID = EntityPartID
@@ -113,7 +152,7 @@ class EntityPart:
 		try:
 			# setup cursor as needed, not initially so we don't get too many connections
 			self._cursor = get_db(raw=True).cursor()
-			if self.NewEntity:
+			if self._NewEntity:
 				self._new_entity(FileName, file_extension)
 			else:
 				self._append_entity()
@@ -133,8 +172,8 @@ class EntityPart:
 
 		args = (self.get_FilePart_db(), FileName, file_extension, util.get_UserID(), None, None) # None is for outEntityID, outEntityPartID
 		self._sql_results = self._cursor.callproc('spCreateEntity', args)
-		self.EntityID = int(self._sql_results[4])
-		self.EntityPartID = int(self._sql_results[5])
+		self._EntityID = int(self._sql_results[4])
+		self._EntityPartID = int(self._sql_results[5])
 
 		if self.EntityID == None:
 			raise RuntimeError("uh oh, something went fucko when creating the entity")
@@ -148,7 +187,7 @@ class EntityPart:
 
 		args = (self.EntityID, self.get_FilePart_db(), self.InsertOrder, None)
 		self._sql_results = self._cursor.callproc('spAppendEntity', args)
-		self.EntityPartID = int(self._sql_results[3])
+		self._EntityPartID = int(self._sql_results[3])
 
 		if self.EntityPartID == None:
 			raise RuntimeError("uh oh, something went fucko when creating the entity")
