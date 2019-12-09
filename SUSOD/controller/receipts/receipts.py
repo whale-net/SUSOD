@@ -18,7 +18,6 @@ def create_receipt():
 
 	required_fields = ['OwnerUserID', 'Amount', 'ReceiptTypeID', 'PurchaseDate', 'CreatedBy', 'CreatedDate', 'UpdatedBy', 'UpdatedDate', 'Description', 'UserIdsCommaSeparated']
 	optional_fields = [] #store?
-	print(data)
 	try:
 		model.receipt_create(data['OwnerUserID'], data['Amount']
 			, data['ReceiptTypeID'], data['PurchaseDate'], data['CreatedBy']
@@ -26,12 +25,10 @@ def create_receipt():
 			, data['UserIdsCommaSeparated'])
 
 		json_data = {"status": 1, "description": "Insert successful"}
-		print(json_data)
 		
 		return flask.jsonify(json_data)
 
 	except:
 		json_data = {"status": 0, "description": 'Insert failed'}
-		print(json_data)
 		
 		return flask.jsonify(json_data)

@@ -99,3 +99,33 @@ def user_index_update(UserID, user_info):
 		return user_index_setup(UserID)
 	except:
 		raise
+
+
+
+def user_login_return_id(username, password):
+	"""
+	verifies user login, returns the id
+	"""
+	cursor = get_db().cursor(dictionary=True)
+
+	#https://www.w3schools.com/python/python_mysql_insert.asp
+	sql = """
+		SELECT U.Password, U.UserID, U.Username
+		FROM Users U
+		WHERE U.Username = (%s)
+		"""
+
+	cursor.execute(sql, (username,))
+
+	# unique index on username, if this returns more than 1...
+	user_info = cursor.fetchone()
+	print('ok1')
+	
+	if (util.password_db_string_verify(password, user_info['Password'])):
+		util.login_user(user_info['UserID'], user_info['Username'])
+		print('ok2')
+		return user_info['UserID']
+	else:
+		raise Exception('unable to login as user: \'{}\''.format(username))
+	
+	return -1

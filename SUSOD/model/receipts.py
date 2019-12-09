@@ -25,16 +25,24 @@ def receipt_create(OwnerUserID, Amount, ReceiptTypeID, PurchaseDate, CreatedBy, 
 		raise
 
 
-	"""
- 	creates receords in ReceiptsUsers for this receipt
-	"""
-	if receipt_id == 0:
-		raise
+	sql_params = []
+	cursor = get_db().cursor()
+	user_ids = UserIdsCommaSeparated.split(',')
 	sql = """
-		
-		"""
-	return
+		INSERT INTO ReceiptsUsers(ReceiptID, UserID, PaymentRatio, DeductionAmount, CreatedBy, CreatedDate, UpdatedBy, UpdatedDate) 
+		VALUES
+	""".strip() + " "
+	for user_id in user_ids: 
+		sql += """
+			( %s, %s, %s, %s, %s, %s, %s, %s ),
+			
+		""".strip() + " "
+		sql_params += [receipt_id, int(user_id), 1, 0, 9, CreatedDate, 9, UpdatedDate]
 
+	sql = sql[:-2] + ";" #remove last comma
 
-
-
+	try:
+		cursor.execute(sql, tuple(sql_params))
+	except Exception as e:
+		print(str(e))
+		raise
