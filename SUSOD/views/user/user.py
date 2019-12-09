@@ -1,9 +1,11 @@
 """
 User view.
 """
+import datetime
 import flask
 import SUSOD
 from SUSOD import util
+from SUSOD.model import Entity
 
 @SUSOD.app.route('/user/login')
 def show_user_login():
@@ -28,5 +30,11 @@ def show_user_index():
 	""" Display /example page."""
 
 	context = util.get_login_context()
-	
+
+	now = datetime.datetime.now()
+	e = Entity(34)
+	#e.file_path()
+	e.cache()
+	print ('Download and Write time: ', datetime.datetime.now() - now)
+		
 	return flask.render_template('user/index.html', **context)

@@ -10,3 +10,5 @@ from .password import *
 from .general import *
 from .user_permissions import *
 from .http_responses import *
+
+from .cache import *
