@@ -105,7 +105,8 @@ class Entity:
 Entity [{}] inserted in: {} 
 	Bytes: {}
 	Parts: {}
-""".format(int(self.EntityID), (datetime.datetime.now() - insert_start), self._file_size, len(self._entity_parts)))
+""".format(int(self.EntityID), (datetime.datetime.now() - insert_start), self._file_size, len(self._entity_parts))
+)
 
 		# todo handle deleting of entity on fail
 
@@ -215,7 +216,10 @@ class EntityPart:
 		# don't delete Entity here because of foreign keys
 		cursor.execute("""DELETE FROM EntityParts WHERE EntityPartID = (%s)""", (self.EntityPartID,))
 
-
+	def _new_entity(self, cursor, FileName, file_extension):
+		print('New Entity Being Created @ [{}]'.format(str(datetime.datetime.now())))
+		args = (self.FilePart, FileName, file_extension, util.get_UserID(), None, None) # None is for outEntityID, outEntityPartID
+		self._sql_results = cursor.callproc('spCreateEntity', args)
 		self._EntityID = int(self._sql_results[4])
 		self._EntityPartID = int(self._sql_results[5])
 
@@ -226,7 +230,8 @@ class EntityPart:
 
 		print('Entity [{}] was created @ [{}]'.format(self.EntityID, str(datetime.datetime.now())))
 
-
+	def _append_entity(self, cursor):
+		print('Entity [{}] writing Part [{}] @ [{}]'.format(self.EntityID, self.InsertOrder, str(datetime.datetime.now())))
 
 		args = (self.EntityID, self.FilePart, self.InsertOrder, None)
 		self._sql_results = cursor.callproc('spAppendEntity', args)
