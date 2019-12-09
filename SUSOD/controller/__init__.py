@@ -6,3 +6,4 @@ do something useful that isn't just pretty pages.
 from .user import *
 
 from ._header import *
+from .receipts import *

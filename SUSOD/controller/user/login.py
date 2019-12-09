@@ -3,6 +3,7 @@ Login endpoint.
 """
 import flask
 import SUSOD
+import json
 from SUSOD import util
 from SUSOD import model
 
@@ -59,4 +60,28 @@ def api_user_logout():
 	util.logout_user()
 
 	return flask.redirect(flask.url_for('show_user_login'))
+
+
+@SUSOD.app.route('/mobile/user/login', methods=['POST'])
+def mobile_user_login():
+	json_data = flask.request.data.decode('utf-8')
+	print(json_data)
+
+	data = json.loads(json_data)
+
+
+	if 'username' not in data or 'password' not in data:
+		json_data = {"status": 0, "description": "Username or password not set"}
+		
+		return flask.jsonify(json_data)
+	try:
+		user_id = model.user_login_return_id(data['username'], data['password'])
+		json_data = {"status": user_id, "description": "Sign in successful"}
+		
+		return flask.jsonify(json_data)
+
+	except:
+		json_data = {"status": 0, "description": "Username or password incorrect"}
+		
+		return flask.jsonify(json_data)
 
