@@ -41,7 +41,14 @@ class Index extends Component {
 		fileData = fileData +'\n' + "ServerName=" + this.state.ServerName + '\n'
 
 		for (var i = 0; i <= this.state.arrayvar.length - 1; i++) {
-			fileData += 'MapRotation=(MapId="' + this.state.arrayvar[i].split('=')[1] + '", GameMode="GUN")';
+			url = this.state.arrayvar[i]
+			if (isNaN(url)) {
+				fileData += 'MapRotation=(MapId="' + this.state.arrayvar[i].split('=')[1] + '", GameMode="GUN")\n';
+			}
+			else {
+				fileData += 'MapRotation=(MapId="' + this.state.arrayvar[i] + '", GameMode="GUN")\n';
+			}
+
 		}
 
 
