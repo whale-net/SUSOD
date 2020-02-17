@@ -10,3 +10,5 @@ is intended to serve your view pages.
 from .index import * # these probably shouldn't be * or we need to define __all__
 from .user import *
 from .security import *
+
+from .pavlov import *
