@@ -24,6 +24,32 @@ Web Service for running a local jukebox.
 11. `source env/bin/activate` to re-activate the venv
 12. `npm install .` to install node modules
 
+## Windows Setup
+1. clone repository from git
+2. Install python3 for windows https://www.python.org/downloads/windows/ 
+3. Add python to Path. Add the following to the Path with changed values for X, replaced with version, and Your Username. This can be accessed by  `Start Menu -> "View Advanced System Settings" -> EnvironmentVariables -> Path -> Edit`
+	a. `C:\Users\YOUR_USERNAME\AppData\Local\Programs\Python\Python3X`
+	b. `C:\Users\YOUR_USERNAME\AppData\Local\Programs\Python\Python3X\Scripts`
+4. From a PowerShell window, create python virtual environment `python -m venv env`
+5. Activate environment ` .\env\Scripts\activate`
+6. Install requirements `python -m pip install -e .`
+7. `deactivate` to exist venv
+8. Install npm and add to path, recommended to use chocolatey https://chocolatey.org/, run `choco install nodejs`
+9. From a separate PowerShell window activate environment ` SUSOD_DIRECTORY\env\Scripts\activate.ps1`
+10. `nodeenv --python-virtualenv`
+11. `npm run dev` 
+
+## Windows PyCharm
+1. In PyCharm File -> Settings-> Tools -> Terminal -> change Shell path to `c:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe`
+2. Set up a run config from `Run -> Edit Configurations...`
+	a. Add new "Shell Script", set the "Script path" to `C:\...\SUSOD\winRun.ps1`
+	b. You may need to change your ExecutionPolicy to be allowed to execute scipts. From a powershell window, with admin permissions, run `Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser`
+		i. Always read scripts before running them!
+3. Run with Green play button at top right, with new configuration set
+4. The debugger can be attached after from `Run->Attach To Process...`
+
+
+
 ## Run the server from one window
 * less screen clutter
 * `npm run dev & ./bin/run` 
