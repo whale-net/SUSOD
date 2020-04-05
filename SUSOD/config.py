@@ -7,7 +7,7 @@ import datetime
 APPLICATION_ROOT = '/'
 
 SECRET_KEY = b'tobegenerated'
-SESSION_COOKIE_NAME = 'login_name'
+SESSION_COOKIE_NAME = 'koni'
 
 VAR_FOLDER = os.path.join(
 	os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
@@ -33,9 +33,9 @@ CACHE_CLEANUP_CHECK_PERIOD = datetime.timedelta(seconds=1)
 
 
 # Database configuration
-DATABASE_HOSTNAME = 'localhost'
+DATABASE_HOSTNAME = '192.168.1.100'
 DATABASE_NAME = 'dbSUSOD'
-DATABASE_USERNAME = 'susod'
-DATABASE_PASSWORD = 'password'
+DATABASE_USERNAME = 'koni'
+DATABASE_PASSWORD = 'fish123'
 
 DATABASE_PORT = 3306

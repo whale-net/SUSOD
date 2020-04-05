@@ -147,7 +147,7 @@ def show_""" + page_name + """_index():
 def __main__():
 	if (len(sys.argv) == 2):
 		page_name = sys.argv[1]
-
+		
 		try:
 			generate_controller(page_name)
 			generate_js(page_name)
