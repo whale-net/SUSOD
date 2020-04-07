@@ -24,33 +24,7 @@ Web Service for running a local jukebox.
 11. `source env/bin/activate` to re-activate the venv
 12. `npm install .` to install node modules
 
-## Windows Setup
-1. clone repository from git
-2. Install python3 for windows https://www.python.org/downloads/windows/ 
-3. Add python to Path. Add the following to the Path with changed values for X, replaced with version, and Your Username. This can be accessed by  `Start Menu -> "View Advanced System Settings" -> EnvironmentVariables -> Path -> Edit`
-	a. `C:\Users\YOUR_USERNAME\AppData\Local\Programs\Python\Python3X`
-	b. `C:\Users\YOUR_USERNAME\AppData\Local\Programs\Python\Python3X\Scripts`
-4. From a PowerShell window, create python virtual environment `python -m venv env`
-5. Activate environment ` .\env\Scripts\activate`
-6. Install requirements `python -m pip install -e .`
-7. `deactivate` to exist venv
-8. Install npm and add to path, recommended to use chocolatey https://chocolatey.org/, run `choco install nodejs`
-9. From a separate PowerShell window activate environment ` SUSOD_DIRECTORY\env\Scripts\activate.ps1`
-10. `nodeenv --python-virtualenv`
-11. `npm run dev` 
-
-## Windows PyCharm
-1. In PyCharm File -> Settings-> Tools -> Terminal -> change Shell path to `c:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe`
-2. Set up a run config from `Run -> Edit Configurations...`
-	a. Add new "Shell Script", set the "Script path" to `C:\...\SUSOD\winRun.ps1`
-	b. You may need to change your ExecutionPolicy to be allowed to execute scipts. From a powershell window, with admin permissions, run `Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser`
-		i. Always read scripts before running them!
-3. Run with Green play button at top right, with new configuration set
-4. The debugger can be attached after from `Run->Attach To Process...`
-
-
-
-## Run the server from one window
+## Run the server from one window 
 * less screen clutter
 * `npm run dev & ./bin/run` 
 
@@ -61,6 +35,44 @@ Web Service for running a local jukebox.
 
 ### Finally
 * Execute `./bin/run` and visit `http://localhost:8000/example`
+
+# Windows Setup
+
+## Setting up the environment
+0. Easier with use of chocolatey, though it is not necessary https://chocolatey.org/
+0. Commands need to be ran using PowerShell, not Command Prompt
+1. Install git, can be installed from chocolatey `choco install git`
+2. clone repository and cd into it `git clone https://github.com/whale-net/SUSOD.git && cd SUSOD`
+3. Install python3 for windows https://www.python.org/downloads/windows/ 
+4. Add python to Path. Needs to be ran in PowerShell, replace the X with your version
+ 		`[Environment]::SetEnvironmentVariable("Path", "$env:Path;%USERPROFILE%\AppData\Local\Programs\Python\Python3X", "User")` and 
+ 		`[Environment]::SetEnvironmentVariable("Path", "$env:Path;%USERPROFILE%\AppData\Local\Programs\Python\Python3X\Scripts", "User")`
+5. Create virtual environment in project root `python -m venv env`
+6. Activate environment ` .\env\Scripts\activate`
+7. Install requirements `python -m pip install -e .`
+8. `deactivate` to exist venv
+9. Install nodejs and add npm to path, recommended to use chocolatey, run `choco install nodejs`
+10.	`[Environment]::SetEnvironmentVariable("Path", "$env:Path;%USERPROFILE%\AppData\Roaming\npm\", "User")`
+11. From a separate PowerShell window activate environment of directory in project root `.\env\Scripts\activate.ps1`
+12. `nodeenv --python-virtualenv`
+13. `deactivate` to exist venv
+14. `.\env\Scripts\activate.ps1` to re-activate the venv
+15. `npm install .` to install node modules
+
+## Running the server
+* `winRun.ps1` to activate the venv, set environment variables, and start flask
+* `winRun_npm.ps1` to activate venv and start npm
+
+
+## Windows PyCharm
+1. In PyCharm File -> Settings-> Tools -> Terminal -> change Shell path to `c:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe`
+2. Set up a run config from `Run -> Edit Configurations...`
+3. Add new "Shell Script", set the "Script path" to `C:\...\SUSOD\winRun.ps1`
+4. Add new "Shell Script", set the "Script path" to `C:\...\SUSOD\winRun_npm.ps1` 
+5. You may need to change your ExecutionPolicy to be allowed to execute scipts. From a powershell window, with admin permissions, run `Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser`
+		
+3. Run with Green play button at top right, with new configuration set
+4. The debugger can be attached after from `Run->Attach To Process...`
 
 at some point update this to include
 https://stackoverflow.com/questions/1884859/lost-connection-to-mysql-server-during-query
