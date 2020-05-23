@@ -44,24 +44,30 @@ class Entity:
 	def Filename(self):
 		return self._Filename
 
+	@property
+	def filename_for_cache(self):
+		return 'E' + str(self.EntityID)
+	
+
 
 	def get_file_size(self):
 		return self.file_size
 
 	def cache(self):
 		"""
-		Caches the file
+		Caches the file on the local server and refreshes cache delete period
 		"""
-		cache = util.Cache.global_cache()
+		with util.CacheFile(util.Cache(), self.filename_for_cache) as cache_file:
+			if cache_file.exists:
+				# TODO we have a race condition between the file existing and the touch. We need something more robust
+				# for now it won't create the file with the touch so it errors instead of serving empty files
+				print('rfrrsh')
+				cache_file.refresh_file_delete_time()
+			else:
+				cache_file.test()
+				for entity_part in self._entity_parts:
+					cache_file.write_chunk(entity_part.FilePart)
 
-		print('WRITING TO CACHE')
-		# temp way of writing files
-		file_bytes = []
-		for entity_part in self._entity_parts:
-			file_bytes += entity_part.FilePart
-
-		cache.write_file(self.Filename, file_bytes)
-		print('CACHE WRITTEN')
 
 	def create(self, file, file_name=None):
 		"""
@@ -81,23 +87,22 @@ class Entity:
 		file_name = secure_filename(file_name)
 		self._Filename = file_name
 
-
 		# surely there has to be a better way to do this
-		self.file_extension = self.Filename.split('.')[-1]
-		if len(self.file_extension) > 5: # probably not an extension, made up number, can change or remove
-			self.file_extension = None
+		self._file_extension = self.Filename.split('.')[-1]
+		if len(self._file_extension) > 5: # probably not an extension, made up number, can change or remove
+			self._file_extension = None
 
 		insert_start = datetime.datetime.now()
 		
 		buffer = file.read(Entity.MAX_FILE_PART_SIZE)
-		self._insert_order = EntityPart.INSERT_ORDER_BEGIN
+		insert_order = EntityPart.INSERT_ORDER_BEGIN
 		while len(buffer) > 0:
-			entity_part = EntityPart(FilePart=buffer, InsertOrder=self._insert_order, EntityID=self.EntityID)
-			entity_part.write_to_db()
+			entity_part = EntityPart(FilePart=buffer, InsertOrder=insert_order, EntityID=self.EntityID)
+			entity_part.write_to_db(Filename=self.Filename, file_extension=self._file_extension)
 			self._EntityID = entity_part.EntityID
 			self._entity_parts.append(entity_part)
 			buffer = file.read(Entity.MAX_FILE_PART_SIZE)
-			self._insert_order += 1
+			insert_order += 1
 
 		self._file_size = sum([entity_part.Length for entity_part in self._entity_parts])
 		
@@ -114,9 +119,22 @@ Entity [{}] inserted in: {}
 		cursor = get_db().cursor()
 		
 		sql = """
+			SELECT E.Filename, E.Description, E.EntityTypeID
+			FROM Entitys E
+			WHERE E.EntityID = (%s)
+		"""
+		cursor.execute(sql, (self.EntityID,))
+		info_row = cursor.fetchall()[0]
+		self._Filename = info_row[0]
+		self._Description = info_row[1]
+		self._EntityTypeID = int(info_row[2])
+
+
+		sql = """
 			SELECT EP.EntityPartID
 			FROM EntityParts EP
 			WHERE EP.EntityID = (%s)
+			ORDER BY EP.InsertOrder
 		"""
 		cursor.execute(sql, (self.EntityID,))
 		entity_part_rows = cursor.fetchall()
@@ -127,7 +145,15 @@ Entity [{}] inserted in: {}
 			entity_part = EntityPart(EntityPartID=row[0])
 			self._entity_parts.append(entity_part)
 
-		
+		# money = 100
+		# sql = "something with moeny"
+		# with SuperTransaction() as tran:
+		# 	sqlrow = SuperCursor(tran).execute(sql)
+		# 	sqlrow['money'] *= 5
+		# 	money = sqlrow['money']
+		# 	SuperCursor(tran).execute_update(sqlrow)
+		# return money
+
 
 
 
@@ -173,6 +199,11 @@ class EntityPart:
 	def Length(self):
 		return self._Length
 
+	@property
+	def filename_for_cache(self):
+		return 'EP' + str(self.EntityPartID)
+	
+
 	def _load_entity_part(self):
 		cursor = get_db(raw=True).cursor()		
 		sql = """
@@ -192,14 +223,14 @@ class EntityPart:
 	# 	self.InsertOrder = InsertOrder
 	# 	self.FilePart = FilePart
 
-	def write_to_db(self, FileName=None, file_extension=None):
+	def write_to_db(self, Filename=None, file_extension=None):
 		if self.EntityPartID != None:
 			return (self.EntityID, self.EntityPartID)
 		try:
 			# setup cursor as needed, not initially so we don't get too many connections
 			cursor = get_db(raw=True).cursor()
 			if self._NewEntity:
-				self._new_entity(cursor, FileName, file_extension)
+				self._new_entity(cursor, Filename, file_extension)
 			else:
 				self._append_entity(cursor)
 		except Exception as e:

@@ -7,7 +7,7 @@ import datetime
 APPLICATION_ROOT = '/'
 
 SECRET_KEY = b'tobegenerated'
-SESSION_COOKIE_NAME = 'koni'
+SESSION_COOKIE_NAME = 'login_name'
 
 VAR_FOLDER = os.path.join(
 	os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
