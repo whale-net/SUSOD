@@ -51,6 +51,7 @@ class Cache():
 
 	def check_clean(self, force_clean=False):
 		now = datetime.datetime.now()
+		# TODO need a separate timer for when we last checked
 		if not force_clean and now - self._clean_time < self._cleanup_check_period:
 			return
 		else:
@@ -61,7 +62,7 @@ class Cache():
 		time.sleep(0.1);
 
 		now = datetime.datetime.now()
-		# touch 
+		#print('CLEANIN')
 		self.touch_file(self._cache_lock_file_path, touch_time=now)
 		max_file_age = (now - self.object_lifetime).timestamp()
 
@@ -74,10 +75,13 @@ class Cache():
 				os.remove(file_path)
 
 
-	def touch_file(self, filename, touch_time=datetime.datetime.now(), create_if_not_found=True):
-		# returns true if touch was successful
-		file_path = os.path.join(self.cache_path, filename)
+	def touch_file(self, filename, touch_time=None, create_if_not_found=True):
+		if touch_time == None:
+			touch_time = datetime.datetime.now()
+
+		file_path = self.get_cache_file_path(filename)
 		if os.path.exists(file_path):
+			#print(file_path)
 			os.utime(file_path, (touch_time.timestamp(), touch_time.timestamp()))
 		else:
 			if create_if_not_found:
@@ -110,32 +114,49 @@ class CacheFile():
 	def exists(self):
 		return self._file_exists
 
+	@property
+	def file_path(self):
+		return self._cache.get_cache_file_path(self._filename)
+	
+
 	def __init__(self, cache, filename):
 		self._cache = cache
 		self._filename = filename
-		self._file_path = self._cache.get_cache_file_path(self._filename)
 
 	def __enter__(self):
-		if os.path.exists(self._file_path):
+		if os.path.exists(self.file_path):
 			self._file_mode = 'rb'
 			self._file_exists = True
+			self._use_temp_filename = False
 		else:
 			self._file_mode = 'ab'
 			self._file_exists = False
-		self._cache.touch_file(self._file_path)
-		self._file = open(self._file_path, self._file_mode)
+			self._use_temp_filename = True
+			self._temp_filename = f'~{self._filename}'
+			# delete existing temp file. Probably a bad idea for 2 concurrent requests for the same large uncached but we'll figure that out when we get there
+			if os.path.exists(self._cache.get_cache_file_path(self._temp_filename)):
+				os.remove(self._cache.get_cache_file_path(self._temp_filename))
+
+		filename_to_use = self._filename
+		if self._use_temp_filename:
+			filename_to_use = self._temp_filename
+
+		self._cache.touch_file(self._cache.get_cache_file_path(filename_to_use))
+		self._file = open(self._cache.get_cache_file_path(filename_to_use), self._file_mode)
 
 		# return the CacheFile object - make it behave similar to open
 		return self
 
 	def __exit__(self, type, value, traceback):
+		if self._use_temp_filename:
+			os.rename(self._cache.get_cache_file_path(self._temp_filename), self.file_path)
 		self._file.close()
 
 	def _upgrade_to_write_mode(self):
 		if not self._file == None:
 			self._file.close()
 		self._file_mode = 'ab'
-		self._file = open(self._file_path, self._file_mode)
+		self._file = open(self.file_path, self._file_mode)
 
 	def write_chunk(self, file_bytes):
 		if not self.is_write_mode:
@@ -148,7 +169,8 @@ class CacheFile():
 		self._file.write(file_bytes)
 
 	def refresh_file_delete_time(self):
+		#print(f'refresh file delete time {self._filename}')
 		self._cache.touch_file(self._filename, create_if_not_found=False)
 
-	def test(self):
-		print(f'CacheFile: {self._filename}')
+	# def test(self):
+	# 	print(f'CacheFile: {self._filename}')

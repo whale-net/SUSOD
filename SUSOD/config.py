@@ -26,7 +26,8 @@ CACHE_FOLDER = os.path.join(
 	'cache'
 )
 
-CACHE_LIFETIME = datetime.timedelta(seconds=30) #datetime.timedelta(hours=24)
+# the length time a file lives in the cache
+CACHE_OBJECT_LIFETIME = datetime.timedelta(seconds=30) #datetime.timedelta(hours=24)
 # Anything above this must be streamed and not put into cache
 CACHE_MAX_FILE_SIZE = 1024 * 1024 * 64 
 CACHE_CLEANUP_CHECK_PERIOD = datetime.timedelta(seconds=1)

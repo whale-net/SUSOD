@@ -26,7 +26,7 @@ class Entity:
 		self._entity_parts = []
 
 		if self.EntityID != None:
-			self._load_entity()
+			self._init_entity()
 
 	@property
 	def EntityID(self):
@@ -48,10 +48,24 @@ class Entity:
 	def filename_for_cache(self):
 		return 'E' + str(self.EntityID)
 	
+	@property
+	def is_entity_loaded(self):
+		# is the entire entity loaded into memory
+		if self.EntityID == None or len(self._entity_parts) == 0 or self.Filename == None or self.EntityTypeID == None:
+			return False
+		for entity_part in self._entity_parts:
+			if not entity_part.is_loaded:
+				return False
+		return True
+
+	# def get_file_size(self):
+	# 	return self.file_size
+
+	def file_path(self):
+		self.cache()
+		return self._file_path
 
 
-	def get_file_size(self):
-		return self.file_size
 
 	def cache(self):
 		"""
@@ -61,13 +75,13 @@ class Entity:
 			if cache_file.exists:
 				# TODO we have a race condition between the file existing and the touch. We need something more robust
 				# for now it won't create the file with the touch so it errors instead of serving empty files
-				print('rfrrsh')
 				cache_file.refresh_file_delete_time()
 			else:
-				cache_file.test()
+				self._load_entity()
 				for entity_part in self._entity_parts:
 					cache_file.write_chunk(entity_part.FilePart)
 
+			self._file_path = cache_file.file_path
 
 	def create(self, file, file_name=None):
 		"""
@@ -115,7 +129,8 @@ Entity [{}] inserted in: {}
 
 		# todo handle deleting of entity on fail
 
-	def _load_entity(self):
+	def _init_entity(self):
+		# initialize all of our entity classes
 		cursor = get_db().cursor()
 		
 		sql = """
@@ -131,7 +146,7 @@ Entity [{}] inserted in: {}
 
 
 		sql = """
-			SELECT EP.EntityPartID
+			SELECT EP.EntityPartID, EP.InsertOrder
 			FROM EntityParts EP
 			WHERE EP.EntityID = (%s)
 			ORDER BY EP.InsertOrder
@@ -142,9 +157,9 @@ Entity [{}] inserted in: {}
 
 		for row in entity_part_rows:
 			#entity_part = EntityPart(EntityPartID=row["EntityPartID"])
-			entity_part = EntityPart(EntityPartID=row[0])
+			entity_part = EntityPart(EntityPartID=row[0], InsertOrder=row[1])
 			self._entity_parts.append(entity_part)
-
+		self._entity_parts.sort()
 		# money = 100
 		# sql = "something with moeny"
 		# with SuperTransaction() as tran:
@@ -154,9 +169,12 @@ Entity [{}] inserted in: {}
 		# 	SuperCursor(tran).execute_update(sqlrow)
 		# return money
 
+	def _load_entity(self):
+		if self.is_entity_loaded:
+			return
 
-
-
+		for entity_part in self._entity_parts:
+			entity_part.load_entity_part_from_db()
 
 class EntityPart:
 
@@ -165,11 +183,11 @@ class EntityPart:
 
 	def __init__(self, FilePart=None, InsertOrder=None, EntityID=None, EntityPartID=None):
 		self._EntityPartID = EntityPartID
-		if self.EntityPartID != None:
-			self._load_entity_part()
-		else:
+		self._InsertOrder = InsertOrder
+
+		if self.EntityPartID == None:
 			self._FilePart = FilePart
-			self._InsertOrder = InsertOrder
+			
 			self._EntityID = EntityID
 
 			self._Length = len(self._FilePart)
@@ -179,8 +197,14 @@ class EntityPart:
 			else:
 				self._NewEntity = False
 
+	def __lt__(self, other):
+		# for sorting a list of EntityParts
+		return self.InsertOrder < other.InsertOrder
+
 	@property
 	def FilePart(self):
+		if not hasattr(self, '_FilePart'):
+			return None
 		return self._FilePart
 	
 	@property
@@ -202,9 +226,14 @@ class EntityPart:
 	@property
 	def filename_for_cache(self):
 		return 'EP' + str(self.EntityPartID)
-	
 
-	def _load_entity_part(self):
+	@property
+	def is_loaded(self):
+		# is the file chunk loaded into memory
+		# definition of loaded will change if we ever stream chunks
+		return self.FilePart != None
+
+	def load_entity_part_from_db(self):
 		cursor = get_db(raw=True).cursor()		
 		sql = """
 			SELECT EP.FilePart, EP.EntityID, EP.InsertOrder
@@ -216,6 +245,19 @@ class EntityPart:
 		self._FilePart = results[0]
 		self._EntityID = results[1]
 		self._InsertOrder = results[2]
+
+	def load_entity_part_from_bytearray(self, FilePart):
+		cursor = get_db(raw=True).cursor()		
+		sql = """
+			SELECT EP.EntityID, EP.InsertOrder
+			FROM EntityParts EP
+			WHERE EP.EntityPartID = (%s)
+		"""
+		cursor.execute(sql, (self.EntityPartID,))
+		results = cursor.fetchone()
+		self._FilePart = FilePart
+		self._EntityID = results[0]
+		self._InsertOrder = results[1]		
 	
 	# todo with defaults
 	# def __init__(self, EntityPartID, InsertOrder, FilePart):

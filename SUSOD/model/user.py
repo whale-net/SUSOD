@@ -70,7 +70,7 @@ def user_index_setup(UserID):
 	cursor = get_db().cursor(dictionary=True)
 	sql = """
 		SELECT U.Username, U.FirstName, U.MiddleName, U.LastName
-			, U.BirthDate
+			, U.BirthDate, U.AvatarEntityID
 		FROM Users U
 		WHERE U.UserID = :UserID
 		"""
@@ -100,6 +100,18 @@ def user_index_update(UserID, user_info):
 	except:
 		raise
 
+
+def user_update_avatar(UserID, EntityID):
+	"""
+	verifies user login, returns the id
+	"""
+	cursor = get_db().cursor()
+
+	sql = """
+		UPDATE Users SET AvatarEntityID = (%s) WHERE UserID = (%s)
+		"""
+
+	cursor.execute(sql, (EntityID, UserID,))
 
 
 def user_login_return_id(username, password):

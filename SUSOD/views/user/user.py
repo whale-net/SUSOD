@@ -31,15 +31,15 @@ def show_user_index():
 
 	context = util.get_login_context()
 
-	now = datetime.datetime.now()
-	e = Entity(102)
+	#now = datetime.datetime.now()
+	#e = Entity(103)
+	# this may (should) be replaced with an endpoint in the controller
 	#e.file_path()
-	new_now = datetime.datetime.now()
-	print('getting ' , e.EntityID)
-	print('\tDownload	: ', new_now - now)
-	e.cache()
-	really_now = datetime.datetime.now()
-	print('\tWrite 		: ',  really_now - new_now)
-	print('\tTotal time	: ', really_now - now)
+	#new_now = datetime.datetime.now()
+	#print('getting ' , e.EntityID)
+	#print('\tDownload	: ', new_now - now)
+	# really_now = datetime.datetime.now()
+	# print('\tWrite 		: ',  really_now - new_now)
+	# print('\tTotal time	: ', really_now - now)
 		
 	return flask.render_template('user/index.html', **context)

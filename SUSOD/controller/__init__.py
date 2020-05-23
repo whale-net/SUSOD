@@ -7,3 +7,4 @@ from .user import *
 
 from ._header import *
 from .receipts import *
+from .entity import *

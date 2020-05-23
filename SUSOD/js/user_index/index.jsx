@@ -76,7 +76,7 @@ class Index extends Component {
 						lg={4}>
 							<Form.Row className="p-3">
 								<Col>
-									<Image className="border border-dark" src="https://cdn.bulbagarden.net/upload/thumb/8/87/Sima_Miltank.png/250px-Sima_Miltank.png"  rounded />
+									<Image className="border border-dark" src={this.state.avatar_url}  rounded />
 								</Col>
 							</Form.Row>
 							<Form.Row className="p-3">
