@@ -165,7 +165,7 @@ class CacheFile():
 		# TODO find better way of doing this (hash)
 		self._file_exists = True
 
-		print(f'writing {len(file_bytes)} bytes')
+		#print(f'writing {len(file_bytes)} bytes')
 		self._file.write(file_bytes)
 
 	def refresh_file_delete_time(self):

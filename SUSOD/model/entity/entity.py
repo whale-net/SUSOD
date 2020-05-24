@@ -77,6 +77,7 @@ class Entity:
 				# for now it won't create the file with the touch so it errors instead of serving empty files
 				cache_file.refresh_file_delete_time()
 			else:
+				# pretty sure race condition because file can be loaded 2x for similar timed request
 				self._load_entity()
 				for entity_part in self._entity_parts:
 					cache_file.write_chunk(entity_part.FilePart)

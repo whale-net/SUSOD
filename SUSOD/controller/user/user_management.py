@@ -21,7 +21,7 @@ def api_user_index():
 		**data
 	}
 
-	model.get_file(1)
+	#model.get_file(1)
 
 	return flask.jsonify(**context)
 
