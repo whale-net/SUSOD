@@ -20,6 +20,7 @@ setup(
 		'nodeenv',
 		'pymysql', #for dataset
 		'dataset',
-		'ffmpeg-python'
+		'ffmpeg-python',
+		'sqlalchemy'
 	],
 )
