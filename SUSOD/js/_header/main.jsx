@@ -48,7 +48,7 @@ class Header extends Component {
 		// prevent render until after fetch
 		if (!this.state.menu)
 			return <div />
-		console.log(this.state);
+		//console.log(this.state);
 		// TODO: make key not based on pk of db?
 		const menuOptionList = [];
 		this.state.menu.forEach((option) => {

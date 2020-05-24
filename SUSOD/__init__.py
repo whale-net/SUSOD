@@ -3,6 +3,7 @@ SUSOD package initilailiazation.
 
 """
 import flask
+import os
 
 app = flask.Flask(__name__)
 
@@ -16,3 +17,9 @@ import SUSOD.controller
 import SUSOD.model
 import SUSOD.views
 import SUSOD.util
+
+if not os.path.exists(app.config['VAR_FOLDER']):
+	os.mkdir(app.config['VAR_FOLDER'])
+
+if not os.path.exists(app.config['CACHE_FOLDER']):
+	os.mkdir(app.config['CACHE_FOLDER'])
