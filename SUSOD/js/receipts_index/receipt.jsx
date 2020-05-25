@@ -23,8 +23,8 @@ class Receipt extends React.Component {
 				return response.json();
 			})
 			.then((data) => {
-				console.log(data['data'][0]);
-				this.setState({data: data['data'][0]});
+				console.log(data['receipt'][0]);
+				this.setState({data: data['receipt'][0]});
 			})
 			.catch((error) => {
 				console.log(error);

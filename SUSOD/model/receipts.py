@@ -6,22 +6,43 @@ from SUSOD import config
 from .db import *
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Float, MetaData, Table
+from sqlalchemy import Column, Integer, String, Float, MetaData, Table, join, ForeignKey, DateTime
 from sqlalchemy.orm import sessionmaker
 
 #Base class definition for sqlalchemy classes
 Base = declarative_base()
 
 #Model class
-class Receipt(Base):
-	__tablename__ = 'Receipts'
+# class Receipts(Base):
+# 	__tablename__ = 'Receipts'
 
-	ReceiptID = Column(Integer, primary_key=True)
-	Description = Column(String)
-	Amount = Column(Float)
+# 	ReceiptID = Column(Integer, primary_key=True)
+# 	Description = Column(String)
+# 	Amount = Column(Float)
+# 	PurchaseDate = Column(DateTime)
+# 	OwnerUserID = Column(Integer, ForeignKey('Users.UserID'))
 
-	def __repr__(self):
-		return "<Receipt(ReceiptID='%s', Description='%s', Amount='%s')>" % (self.ReceiptID, self.Description, self.Amount)
+# 	def __repr__(self):
+# 		return "<Receipts(ReceiptID='%s', Description='%s', Amount='%s')>" % (self.ReceiptID, self.Description, self.Amount)
+
+# class ReceiptsUsers(Base):
+# 	__tablename__ = 'ReceiptsUsers'
+
+# 	ReceiptUserID = Column(Integer, primary_key=True)
+# 	ReceiptID = Column(Integer, ForeignKey('Receipts.ReceiptID'))
+# 	UserID = Column(Integer, ForeignKey('Users.UserID'))
+
+# 	def __repr__(self):
+# 		return "<ReceiptsUsers(ReceiptUserID='%s', ReceiptID='%s')>" % (self.ReceiptUserID, self.ReceiptID)
+
+# class Users(Base):
+# 	__tablename__ = 'Users'
+
+# 	UserID = Column(Integer, primary_key=True)
+# 	Username = Column(String)
+
+# 	def __repr__(self):
+# 		return "<Users(UserID='%s', Username='%s')>" % (self.UserID, self.Username)
 
 
 def receipt_create(OwnerUserID, Amount, ReceiptTypeID, PurchaseDate, CreatedBy, CreatedDate, UpdatedBy, UpdatedDate, Description, UserIdsCommaSeparated):
@@ -74,7 +95,7 @@ def receipts_setup():
 
 	session = Session()
 	
-	for i in session.query(Receipt):
+	for i in session.query(Receipts):
 		print(i)
 		
 	print(session)
@@ -85,15 +106,52 @@ def receipts_search(formData):
 	Session = sessionmaker(bind=engine)
 	session = Session()
 	
-	qry = session.query(Receipt)
 
-	if (formData['Description'] != ''):
-		qry.filter(Receipt.Description.like('%' + '%s' + '%', tuple(formData["Description"])))
+	meta = MetaData()
+	meta.reflect(bind=engine)
 
+	# receipts = Table('Receipts', meta, autoload=True, autoload_with=engine)
+	# users = Table('Users', meta, autoload=True, autoload_with=engine)
+	receipts = meta.tables["Receipts"]
+	users = meta.tables["Users"]
 
 	returnSet = {'data': []}
-	for i in session.query(Receipt):
-		returnSet['data'] += [{'ReceiptID': i.ReceiptID, 'Description': i.Description, 'Amount': i.Amount}]
+	for r in session\
+			.query(receipts, users)\
+			.join( receipts, receipts.c['OwnerUserID'] == users.c["UserID"])\
+			.order_by(receipts.c['ReceiptID']):
+			# .query(receipts, users)\
+			# .join(users, receipts.OwnerUserID == users.UserID)\
+			# .filter(receipts.Description.like(f'%{formData["Description"]}%'))\
+			# .order_by(receipts.ReceiptID):
+
+		returnSet['data'] += [{'ReceiptID': r.ReceiptID, 'Description': r.Description, 'Amount': float(r.Amount), 'Username': r.Username, 'PurchaseDate': r.PurchaseDate}]
+		# print(r,u)
+	
 
 
 	return returnSet
+
+def receipts_receipt(ReceiptID):
+	engine = create_engine('mysql+pymysql://'+config.DATABASE_USERNAME+':'+config.DATABASE_PASSWORD+'@'+config.DATABASE_HOSTNAME+'/'+config.DATABASE_NAME, echo=True)
+
+	Session = sessionmaker(bind=engine)
+	session = Session()
+
+	receipts = Table('Receipts', meta, autoload=True, autoload_with=engine)
+	receiptsUsers = Table('ReceiptsUsers', meta, autoload=True, autoload_with=engine)
+	Users = Table('Users', meta, autoload=True, autoload_with=engine)
+
+	j = join(Receipts, ReceiptsUsers, Receipts.ReceiptID == ReceiptsUsers.ReceiptID)
+	qry = session.query(j)
+
+	returnSet = {'receipt': []}
+	for i in qry.filter(Receipts.ReceiptID == ReceiptID):
+		returnSet['receipt'] += [{'ReceiptID': i.ReceiptID, 'Description': i.Description, 'Amount': i.Amount}]
+
+
+
+
+	return returnSet
+
+

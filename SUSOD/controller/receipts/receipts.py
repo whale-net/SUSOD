@@ -58,3 +58,19 @@ def api_receipts_search():
 	}
 
 	return flask.jsonify(**context)
+
+
+@SUSOD.app.route('/api/receipts/receipt', methods=['POST'])
+@util.has_permissions
+def api_receipts_receipt():
+	formData = util.get_post_json()
+
+	# In this, formData is just our ReceiptID
+	data = model.receipts_receipt(formData)
+
+	context = { 
+		**util.get_login_context(),
+		**data
+	}
+
+	return flask.jsonify(**context)
