@@ -14,3 +14,5 @@ from .security import *
 from .pavlov import *
 
 # from .paste_to_table import *
+
+from .receipts import *

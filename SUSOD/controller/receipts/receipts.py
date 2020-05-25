@@ -32,3 +32,29 @@ def create_receipt():
 		json_data = {"status": 0, "description": 'Insert failed'}
 		
 		return flask.jsonify(json_data)
+
+@SUSOD.app.route('/api/receipts/setup', methods=['GET'])
+@util.has_permissions
+def api_receipts_setup():
+	form = util.get_post_json()
+	data = model.receipts_setup()
+
+	context = { 
+		**util.get_login_context(),
+		**data
+	}
+
+	return flask.jsonify(**context)
+
+@SUSOD.app.route('/api/receipts/search', methods=['POST'])
+@util.has_permissions
+def api_receipts_search():
+	formData = util.get_post_json()
+	data = model.receipts_search(formData)
+
+	context = { 
+		**util.get_login_context(),
+		**data
+	}
+
+	return flask.jsonify(**context)

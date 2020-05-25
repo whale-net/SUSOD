@@ -89,7 +89,7 @@ class Index extends Component {
 			})
 			.then((data) => {
 				console.log(data);
-				this.setState({data: data['data']});
+				this.setState({data: data});
 			})
 			.catch((error) => {
 				console.log(error);
@@ -179,7 +179,7 @@ class Index extends Component {
 
 				<div style={{overflow:'scroll', height: '400px'}}>
 					<DataTable
-						title= 'Currently Outstanding Receipts'
+						title= 'Receipts'
 						columns={this.columns}
 						data={this.state.data}
 					/>	

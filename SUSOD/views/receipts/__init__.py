@@ -1,0 +1,1 @@
+from .receipts import show_receipts_index
