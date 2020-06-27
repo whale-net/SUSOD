@@ -200,48 +200,60 @@ def receipts_search(formData):
 
 	returnSet = {'data': []}
 	
-	if formData["OnlyShowUnpaid"] == False:
 		#sqlalchemy PyObject manipulation (perhaps better when doing in memory?)
-		for r in session\
-				.query(receipts, users)\
-				.join( receipts, receipts.c['OwnerUserID'] == users.c["UserID"])\
-				.filter(receipts.c['Description'].like(f'%{formData["Description"]}%'))\
-				.order_by(receipts.c['ReceiptID']):
-				# .query(receipts, users)\
-				# .join(users, receipts.OwnerUserID == users.UserID)\
-				# .order_by(receipts.ReceiptID):
+		# for r in session\
+		# 		.query(receipts, users)\
+		# 		.join( receipts, receipts.c['OwnerUserID'] == users.c["UserID"])\
+		# 		.filter(receipts.c['Description'].like(f'%{formData["Description"]}%'))\
+		# 		.order_by(receipts.c['ReceiptID']):
+				
 
-			returnSet['data'] += [{'ReceiptID': r.ReceiptID, 'Description': r.Description, 'Amount': float(r.Amount), 'Username': r.Username, 'PurchaseDate': r.PurchaseDate}]
+			# returnSet['data'] += [{'ReceiptID': r.ReceiptID, 'Description': r.Description, 'Amount': float(r.Amount), 'Username': r.Username, 'PurchaseDate': r.PurchaseDate}]
 			# print(r,u)
-	else:
+
 		#sqlalchemy text 
-		with engine.connect() as con:
+	with engine.connect() as con:
+		data = {"Description": f'%{formData["Description"]}%'}
 
-			sql = text(
+		sql = """
+SELECT R.ReceiptID, R.Description, R.Amount, U.Username, R.PurchaseDate
+FROM Receipts R
+inner join Users U on R.OwnerUserID = U.UserID 
+
+
+
+WHERE R.Description LIKE :Description
+
+		"""
+	
+		if (formData["Amount"] != None and formData["Amount"] != ''):
+			sql += """ 
+AND R.Amount = :Amount 
+			"""
+			
+			data["Amount"] = formData["Amount"]
+
+		if formData["OnlyShowUnpaid"] == True:
+			sql += """ 			
+AND NOT EXISTS
+	(select *
+		from PaymentsReceipts PR2 
+		where PR2.ReceiptID = R.ReceiptID 
+	)
+			"""
+
+
+		sql += """
+
+ORDER BY R.ReceiptID
+
 				"""
-				SELECT R.ReceiptID, R.Description, R.Amount, U.Username, R.PurchaseDate
-				FROM Receipts R
-				inner join Users U on R.OwnerUserID = U.UserID 
 
-				WHERE NOT EXISTS
-					(select *
-						from PaymentsReceipts PR2 
-						where PR2.ReceiptID = R.ReceiptID 
-					)
 
-				AND R.Description LIKE :Description
-
-				ORDER BY R.ReceiptID
-
-				"""
-				)
-
-			data = {"Description": f'%{formData["Description"]}%' }
-
-			for r in con.execute(sql, **data):
-		
-				returnSet['data'] += [{'ReceiptID': r.ReceiptID, 'Description': r.Description, 'Amount': float(r.Amount), 'Username': r.Username, 'PurchaseDate': r.PurchaseDate}]
-		
+		for r in con.execute(text(sql), **data):
+	
+			returnSet['data'] += [{'ReceiptID': r.ReceiptID, 'Description': r.Description, 'Amount': float(r.Amount), 'Username': r.Username, 'PurchaseDate': r.PurchaseDate}]
+	
 
 	return returnSet
 
