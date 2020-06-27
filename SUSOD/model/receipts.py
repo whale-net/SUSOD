@@ -77,12 +77,16 @@ def receipts_save(formData):
 					, OwnerUserID = :OwnerUserID
 					, Amount = :Amount
 					, PurchaseDate = :PurchaseDate
+					, UpdatedBy = :UpdatedBy
+					, UpdatedDate = :UpdatedDate
 				WHERE ReceiptID = :ReceiptID
 
 				"""
 				)
 
-			data = {"ReceiptID": formData['receipt']["ReceiptID"], "Description": formData['receipt']["Description"], "OwnerUserID": formData['receipt']["OwnerUserID"], "Amount": formData['receipt']['Amount'], "PurchaseDate":  datetime.datetime.strptime( formData["receipt"]['PurchaseDate'], '%Y-%m-%dT%H:%M:%S.%fZ')}
+			data = {"ReceiptID": formData['receipt']["ReceiptID"], "Description": formData['receipt']["Description"], "OwnerUserID": formData['receipt']["OwnerUserID"], "Amount": formData['receipt']['Amount']
+					, "PurchaseDate":  datetime.datetime.strptime( formData["receipt"]['PurchaseDate'], '%Y-%m-%dT%H:%M:%S.%fZ')
+					, "UpdatedDate": CreatedUpdatedAt, "UpdatedBy": formData['UserID'] }
 			#TODO: Look into sqlalchemy.engine.result.ResultProxy....
 			print(con.execute(sql, **data))
 
