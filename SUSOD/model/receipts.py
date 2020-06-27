@@ -95,7 +95,6 @@ def receipts_save(formData):
 				INSERT into Receipts (OwnerUserID , Amount , PurchaseDate , CreatedBy , CreatedDate , UpdatedBy , UpdatedDate, Description, ReceiptTypeID )
 				Values (:OwnerUserID , :Amount , :PurchaseDate , :CreatedBy , :CreatedDate , :UpdatedBy , :UpdatedDate, :Description, :ReceiptTypeID );
 
-				SELECT LAST_INSERT_ID() ReceiptID
 				"""
 				)
 
@@ -106,7 +105,16 @@ def receipts_save(formData):
 					}	
 
 			# can add optional as (if thing in formData[...]: add to data, else add None in place). no optional for this page
-			for i in con.execute(sql, **data):
+			con.execute(sql, **data)
+				# ReceiptID = i.ReceiptID
+
+
+			sql = text(
+				"""
+				SELECT LAST_INSERT_ID() ReceiptID
+				"""
+				)
+			for i in con.execute(sql):
 				ReceiptID = i.ReceiptID
 
 	print(formData['receiptsUsers']);
