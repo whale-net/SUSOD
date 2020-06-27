@@ -74,3 +74,18 @@ def api_receipts_receipt():
 	}
 
 	return flask.jsonify(**context)
+
+@SUSOD.app.route('/api/receipts/receipt/save', methods=['POST'])
+@util.has_permissions
+def api_receipts_save():
+	formData = util.get_post_json()
+
+	data = model.receipts_save(formData)
+
+	context = { 
+		**util.get_login_context(),
+		**data
+	}
+
+	return flask.jsonify(**context)
+

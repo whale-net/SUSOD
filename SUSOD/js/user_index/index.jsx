@@ -22,7 +22,7 @@ class Index extends Component {
 		this.onLastNameChange = this.onLastNameChange.bind(this);
 		this.onSubmit = this.onSubmit.bind(this);
 	}
-
+	
 	componentDidMount() {
 		fetch(this.props.url, { credentials: 'same-origin'})
 			.then((response) => {

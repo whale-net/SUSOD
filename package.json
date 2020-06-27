@@ -23,11 +23,14 @@
 	},
 	"dependencies": {
 		"bootstrap": "^4.3.1",
+		"css-loader": "^3.6.0",
 		"memoize-one": "^5.1.1",
 		"react": "^16.8.6",
 		"react-bootstrap": "^1.0.0-beta.10",
 		"react-data-table-component": "^6.9.2",
+		"react-datepicker": "^3.0.0",
 		"react-dom": "^16.8.6",
+		"react-icons": "^3.10.0",
 		"react-modal": "^3.11.2",
 		"styled-components": "^5.1.0"
 	}

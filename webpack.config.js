@@ -36,9 +36,14 @@ const config = {
 			test: /\.(js|jsx)$/,
 			loader: 'babel-loader',
 			exclude: /node_modules/,
-		}
+		}, {
+       test: /\.(css)$/i, 
+  loader:  "css-loader" 
+
+      }
 		]
 	},
+	
 	optimization: {
 		splitChunks: {
 			cacheGroups: {

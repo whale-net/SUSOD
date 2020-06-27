@@ -16,6 +16,7 @@ import Modal from 'react-modal';
 import Receipt from './receipt.jsx';
 // const data=[{ReceiptID: 1, Description: "This is a test"}];
 
+import {FiSearch, FiPlusCircle} from 'react-icons/fi'
 
 
 class Index extends Component {
@@ -25,9 +26,13 @@ class Index extends Component {
 		this.state = {
 			Description: '',
 			ShowModal: false, 
-			ReceiptID: 0
+			ReceiptID: 0,
+			Amount: null,
+			OnlyShowUnpaid: false,
+			UserID: 0
 		};
 
+		
 		// Describes the columns for this page's grid
 		this.columns = [
 			{
@@ -61,23 +66,36 @@ class Index extends Component {
 		];
 
 		this.onDescriptionChange = this.onDescriptionChange.bind(this);
-
+		this.onAmountChange = this.onAmountChange.bind(this);
+		this.onOnlyShowUnpaidChange = this.onOnlyShowUnpaidChange.bind(this);
 		this.handleModalClose = this.handleModalClose.bind(this);
 		this.handleModalSave = this.handleModalSave.bind(this);
-
 		this.componentDidMount = this.componentDidMount.bind(this);
 		this.onReceiptClick = this.onReceiptClick.bind(this);
+		this.onNewClick = this.onNewClick.bind(this);
 		this.onSearch = this.onSearch.bind(this);
 	}
 
 	onReceiptClick(e) {
 
 		this.setState({ShowModal: true, ReceiptID: e.target.textContent });
-		console.log(e.target.textContent);
+	}
+
+	onNewClick(e) {
+		this.setState({ShowModal: true, ReceiptID: 0});
+
 	}
 
 	onDescriptionChange(e) {
 		this.setState({Description: e.target.value});
+	}
+	onAmountChange(e) {
+		this.setState({Amount: e.target.value});
+	}
+	onOnlyShowUnpaidChange(e) {
+
+		console.log(e.target.checked);
+		this.setState({OnlyShowUnpaid: e.target.checked});
 	}
 	
 	componentDidMount() {
@@ -90,6 +108,7 @@ class Index extends Component {
 			.then((data) => {
 				console.log(data);
 				this.setState({data: data});
+				this.setState({UserID: data['UserID']})
 			})
 			.catch((error) => {
 				console.log(error);
@@ -97,8 +116,6 @@ class Index extends Component {
 	}
 
 	onSearch(e) {
-
-		
 		fetch(this.props.url + 'search', 
 			{
 				credentials: 'same-origin',
@@ -134,16 +151,18 @@ class Index extends Component {
 
 			<div>
 				<Modal
-		          isOpen={this.state.ShowModal}
-		          // onAfterOpen={}
-		          contentLabel="Example Modal"
+					isOpen={this.state.ShowModal}
+					// onAfterOpen={}
 		        >
-		        	<Receipt url={this.props.url + 'receipt'} id={parseInt(this.state.ReceiptID)} />
+		        	<Receipt url={this.props.url + 'receipt'} id={parseInt(this.state.ReceiptID)} UserID={parseInt(this.state.UserID)}/>
 		          	<Button variant='primary' onClick={this.handleModalClose}>Close</Button>
+					
 
 		        </Modal>
 
+				
 				<Form > 
+					
 					<Form.Row className="">
 						<Form.Group 
 							as={Col} 
@@ -161,15 +180,39 @@ class Index extends Component {
 												onChange={this.onDescriptionChange}
 											/>
 										</InputGroup>
+										<InputGroup className="border" >
+										
+											<InputGroup.Prepend>
+												<InputGroup.Text>
+													Amount
+												</InputGroup.Text>
+											</InputGroup.Prepend>
+											<Form.Control
+												value={!this.state.Amount ? '' : this.state.Amount} 
+												onChange={this.onAmountChange}
+											/>
+										</InputGroup>
+											
+										<Form.Group controlId="formBasicCheckbox">
+											<Form.Check 
+												type="checkbox" 
+												label="Only show unpaid" 
+												onChange={this.onOnlyShowUnpaidChange}
+											/>
+										</Form.Group>
+
 									</Form.Group>
 								</Form.Row>
 						</Form.Group>
 						<Form.Group as={Col} lg={8}>
 							
 							<Form.Row>
-								<Button variant="primary" onClick={this.onSearch} className="mx-auto mt-5">
+								<FiSearch  onClick={this.onSearch} className="mx-auto mt-5">
 									Search
-								</Button> 
+								</FiSearch> 
+								<FiPlusCircle onClick={this.onNewClick} className="mx-auto mt-5" >
+									Add
+								</FiPlusCircle>
 							</Form.Row>
 						</Form.Group>
 					</Form.Row>
