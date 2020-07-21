@@ -16,26 +16,18 @@ import {FiPlusSquare} from 'react-icons/fi';
 class Receipt extends React.Component {
 	constructor(props) {
 		super(props);
-
 		this.state = {
-			UserID: 0,
-			receipt: {},
-			users: [],
-			receiptsUsers: []
-		}
+			
+		};
 
-		this.onDescriptionChange = this.onDescriptionChange.bind(this);
-		this.onAmountChanged = this.onAmountChanged.bind(this);
-		this.saveReceipt = this.saveReceipt.bind(this);	  
-		this.onOwnerUserIDChange = this.onOwnerUserIDChange.bind(this);
-		this.onPurchaseDateChange = this.onPurchaseDateChange.bind(this);
 		this.onReceiptsUsersChange = this.onReceiptsUsersChange.bind(this);
+		this.updateReceiptFieldIfDefined = this.updateReceiptFieldIfDefined.bind(this);
+		this.saveReceipt = this.saveReceipt.bind(this);
 	}
-	
-	componentDidMount() {
-		this.setState({UserID: this.props.UserID});
-		
 
+	componentDidMount() {
+
+		console.log('hi');
 		fetch(this.props.url, {
 				credentials: 'same-origin',
 				method: 'POST',
@@ -47,108 +39,87 @@ class Receipt extends React.Component {
 				return response.json();
 			})
 			.then((data) => {
-
-				this.setState({receipt: data['receipt'][0]});
-				this.setState({users: data['users']});
-				this.setState({receiptsUsers: data['receiptsUsers']});
-				// console.log(this.props.url);
-				console.log(data)		
-
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-
-	}
-
-	onReceiptsUsersChange(e ) {
-		let userId = e.target.value;
-		console.log(this.state.receiptsUsers);
-
-		if (document.getElementById(`chk-${userId}`).checked){
-			// checkbox is checked..
-			if (!this.findByField(this.state.receiptsUsers, 'UserID', userId)){
-
-				let receiptsUsers = this.state.receiptsUsers;
-				receiptsUsers.push({'UserID': userId,  'DeductionAmount': 0, 'PaymentRatio': 1});
-				this.setState({receiptsUsers: receiptsUsers});
-			}
-		}
-		else{
-			let receiptsUsers = this.state.receiptsUsers;
-
-			for (var i =0; i < receiptsUsers.length; i++){
-			   if (receiptsUsers[i]['UserID'] == userId) {
-			      receiptsUsers.splice(i,1);
-			      break;
-			   }
-			}
-
-			this.setState({receiptsUsers: receiptsUsers});
-		}
-
-		console.log(this.state.receiptsUsers);
-
-		// if (!this.findByField(this.state.receiptsUsers, 'UserID', userId):
-
-
-	}
-
-	onPurchaseDateChange(e) {
-		console.log(e);
-
-		let receipt = this.state.receipt;
-		receipt.PurchaseDate = e;
-		this.setState({receipt: receipt});
-	}
-
-	onDescriptionChange(e) {
-		let receipt = this.state.receipt;
-		receipt.Description = e.target.value;
-
-		this.setState({receipt: receipt});
-		
-	}
-
-	onOwnerUserIDChange(e) {
-		let receipt = this.state.receipt;
-		receipt.OwnerUserID = e.target.value;
-
-		this.setState({receipt: receipt})
-	}
-
-	onAmountChanged(e) {
-		let receipt = this.state.receipt;
-		receipt.Amount = e.target.value;
-		
-		this.setState({receipt: receipt});
-	}
-
-	saveReceipt (e) {
-		// console.log('submit....');
-		// modify purchaseDate so format is correct always
-		let receipt = this.state.receipt;
-		receipt.PurchaseDate = new Date(receipt.PurchaseDate); 
-
-		this.setState({receipt: receipt});
-
-		fetch(this.props.url + '/save', {
-				credentials: 'same-origin',
-				method: 'POST',
-				header: 'Content-Type: application/json',
-				body: JSON.stringify(this.state)
-			})
-			// .then((response) => {
-			// 	if (!response.ok) throw Error(response.statusText);
-			// 	return response.json();
-			// })
-			.then((data) => {
-
 				this.setState(data);
 			})
 			.catch((error) => {
 				console.log(error);
 			});
+
+		 
+	}
+
+	// todo this should really be its own component 
+	onReceiptsUsersChange(e ) {
+		let userId = e.target.value;
+		// console.log(this.state.receiptsUsers);
+
+		if (document.getElementById(`chk-${userId}`).checked){
+			// checkbox is checked..
+			if (!!this.state.receiptsUsers){
+				if (!this.findByField(this.state.receiptsUsers, 'UserID', userId)){
+					let receiptsUsers = this.state.receiptsUsers;
+					receiptsUsers.push({'UserID': userId,  'DeductionAmount': 0, 'PaymentRatio': 1});
+					this.setState({receiptsUsers: receiptsUsers});
+				}
+			}
+		}
+		else{
+			if (!!this.state.receiptsUsers){
+				let receiptsUsers = this.state.receiptsUsers;
+	
+				for (var i =0; i < receiptsUsers.length; i++){
+				   if (receiptsUsers[i]['UserID'] == userId) {
+					  receiptsUsers.splice(i,1);
+					  break;
+				   }
+				}
+	
+				this.setState({receiptsUsers: receiptsUsers});
+			}
+		}
+	}
+
+	updateReceiptFieldIfDefined(field, value){
+		if (!!this.state.receipt){
+			let receipt = this.state.receipt;
+			receipt[field] = value;
+			console.log(receipt);
+
+			this.setState({receipt: receipt});
+
+		}
+	}
+	
+	saveReceipt (e) {
+		// console.log('submit....');
+		// modify purchaseDate so format is correct always
+		if (!!this.state.receipt)
+		{
+
+			let receipt = this.state.receipt;
+			receipt.PurchaseDate = new Date(receipt.PurchaseDate); 
+
+			this.setState({receipt: receipt});
+			
+					fetch(this.props.url + '/save', {
+							credentials: 'same-origin',
+							method: 'POST',
+							header: 'Content-Type: application/json',
+							body: JSON.stringify(this.state)
+						})
+						.then((response) => {
+							if (!response.ok) throw Error(response.statusText);
+							return response.json();
+						})
+						.then((data) => {
+							this.setState(data);
+							console.log(this.state);
+						})
+						.catch((error) => {
+							console.log(error);
+						});
+		}
+
 	}
 
 	findByField(array, field, value) {
@@ -157,14 +128,15 @@ class Receipt extends React.Component {
 				return array[i];
 			}
 		}
-
 	}
 
 
 	render() {
+
 		return (
 			<span>
-				<div style={{backgroundColor: '#6c757d'}}>
+		{ !!(this.state.receipt) && 
+				<div style={{backgroundColor: '#6c757d', width: '26em', justifyContent:'center', alignItems:'center', flexGrow: 1}}>
 					<Form> 
 						<Form.Group 
 								as={Col} 
@@ -175,8 +147,8 @@ class Receipt extends React.Component {
 										<InputGroup.Text>Description</InputGroup.Text>
 									</InputGroup.Prepend>
 									<Form.Control 
-										value={!this.state.receipt.Description ? '' : this.state.receipt.Description} 
-										onChange={this.onDescriptionChange}
+										value={this.state.receipt.Description} 
+										onChange={(e) => this.updateReceiptFieldIfDefined('Description', e.target.value)}
 										placeholder="Description"
 									/>
 								</InputGroup>
@@ -187,19 +159,19 @@ class Receipt extends React.Component {
 										<InputGroup.Text>Amount</InputGroup.Text>
 									</InputGroup.Prepend>
 									<Form.Control 
-										value={!this.state.receipt.Amount ? '' : this.state.receipt.Amount} 
-										onChange={this.onAmountChanged}
+										value={this.state.receipt.Amount} 
+										onChange={(e) => this.updateReceiptFieldIfDefined('Amount', e.target.value)}//this.updateReceiptFieldIfDefined(Amount, e)}
 										placeholder="Amount"
 									/>
 								</InputGroup>
-								<InputGroup className="pl-5" style={{width: "20em"}}>
+								<InputGroup className="pt-3" style={{width: "20em"}}>
 									<InputGroup.Prepend>
 										<InputGroup.Text>Purchased By</InputGroup.Text>
 									</InputGroup.Prepend>
 									<Form.Control 
 										as="select" 
 										value={this.state.receipt.OwnerUserID}
-										onChange={this.onOwnerUserIDChange}
+										onChange={(e) => this.updateReceiptFieldIfDefined('OwnerUserID', e.target.value)}//this.onOwnerUserIDChange}
 										>
 							    		{this.state.users.map((user) => (
 							    				<option value={user.UserID}>{user.Username}</option>
@@ -207,14 +179,20 @@ class Receipt extends React.Component {
 								    </Form.Control>
 								</InputGroup>
 							</Form.Row>
-
-
+								<Form.Row className="pt-3">
+									<DatePicker
+										style={{width: "20em"}}
+								        selected={new Date(this.state.receipt.PurchaseDate.toString())}
+								        onChange={(e) => {console.log(e); this.updateReceiptFieldIfDefined('PurchaseDate', e);  }}
+								
+								      />
+							    </Form.Row>
 							<Form.Row className='pt-3 '>
 								<InputGroup className="">
-								{this.state.users.slice(1).map((user) => (
+								{  this.state.users.slice(1).map((user) => (  
 									  <Form.Check 
 								        type={'checkbox'}
-								        checked={this.findByField(this.state.receiptsUsers, 'UserID', user.UserID)}
+								        checked={this.findByField(this.state.receiptsUsers , 'UserID', user.UserID)}
 								        id={`chk-${user.UserID}`}
 								        key={user.UserID}
 								        value={user.UserID}
@@ -239,28 +217,19 @@ class Receipt extends React.Component {
 								</Form.Row>
 						</Form.Group>
 					</Form>
-
-
-					
-				</div>
-				<div>
-					<DatePicker
-						style={{width: "20em"}}
-				        selected={!!this.state.receipt.PurchaseDate ?  new Date(this.state.receipt.PurchaseDate.toString()): new Date()}
-				        onChange={this.onPurchaseDateChange}
 				
-				      />
-				</div>
-			</span>
-		)
+	  </div>
 	}
+			</span>)
+	}
+		  
 }
 
 
 Receipt.propTypes = {
 	url: PropTypes.string.isRequired,
 	id: PropTypes.number,
-	UserID: PropTypes.number
+	UserID: PropTypes.number,
 
 }
 

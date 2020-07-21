@@ -141,17 +141,20 @@ class Index extends Component {
 	}
 
 	handleModalSave(e) {
-		console.log('hi')
+		console.log('hi');
 		this.setState({ShowModal: false,ReceiptID: 0});		
 	}
 
 
 	render() {
 		return (
+			<div >
+				
 
-			<div>
 				<Modal
 					isOpen={this.state.ShowModal}
+					className="ml-5 mt-5 pt-5 pl-5"
+					// style={{marginLeft: '23em'}}
 					// onAfterOpen={}
 		        >
 		        	<Receipt url={this.props.url + 'receipt'} id={parseInt(this.state.ReceiptID)} UserID={parseInt(this.state.UserID)}/>
@@ -160,7 +163,6 @@ class Index extends Component {
 
 		        </Modal>
 
-				
 				<Form > 
 					
 					<Form.Row className="">
@@ -220,7 +222,7 @@ class Index extends Component {
 
 			
 
-				<div style={{overflow:'scroll', height: '400px'}}>
+				<div style={{overflow:'scroll', height: '75vh' }}>
 					<DataTable
 						title= 'Receipts'
 						columns={this.columns}

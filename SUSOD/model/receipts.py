@@ -24,6 +24,8 @@ def receipt_create(OwnerUserID, Amount, ReceiptTypeID, PurchaseDate, CreatedBy, 
 		VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
 		"""
 
+	
+
 	try:
 		cursor.execute(sql, (OwnerUserID, Amount, ReceiptTypeID, PurchaseDate, CreatedBy, CreatedDate, UpdatedBy, UpdatedDate, Description))
 	
@@ -67,6 +69,8 @@ def receipts_save(formData):
 	ReceiptID = 0
 	CreatedUpdatedAt = datetime.datetime.now()
 	 
+	print(formData)
+
 	if (formData['receipt']["ReceiptID"] > 0):
 		with engine.connect() as con:
 
@@ -79,8 +83,7 @@ def receipts_save(formData):
 					, PurchaseDate = :PurchaseDate
 					, UpdatedBy = :UpdatedBy
 					, UpdatedDate = :UpdatedDate
-				WHERE ReceiptID = :ReceiptID
-
+				WHERE ReceiptID = :ReceiptID 
 				"""
 				)
 
@@ -110,7 +113,7 @@ def receipts_save(formData):
 
 			# can add optional as (if thing in formData[...]: add to data, else add None in place). no optional for this page
 			con.execute(sql, **data)
-				# ReceiptID = i.ReceiptID
+				# ReceiptID = iReceiptID
 
 
 			sql = text(
@@ -120,8 +123,9 @@ def receipts_save(formData):
 				)
 			for i in con.execute(sql):
 				ReceiptID = i.ReceiptID
+				formData['receipt']['ReceiptID'] = ReceiptID
 
-	print(formData['receiptsUsers']);
+
 
 	#first delete existing ReceiptsUsers records 
 	with engine.connect() as con:
@@ -137,8 +141,8 @@ def receipts_save(formData):
 		#required keys
 		data = {"ReceiptID": ReceiptID}
 		con.execute(sql, **data)
-		
 
+		
 
 	if (len(formData['receiptsUsers']) > 0 ):
 		
@@ -159,8 +163,7 @@ def receipts_save(formData):
 						"UpdatedBy": formData['UserID'], "CreatedDate": CreatedUpdatedAt, "UpdatedDate": CreatedUpdatedAt	}
 				con.execute(sql, **data)
 	 
-	
-		
+
 	return formData
 
 def receipts_setup():
@@ -217,7 +220,9 @@ def receipts_search(formData):
 
 		#sqlalchemy text 
 	with engine.connect() as con:
-		data = {"Description": f'%{formData["Description"]}%'}
+		
+
+		data = {"Description": f'%{formData["Description"] if (formData["Description"] != None) else ""}%'}
 
 		sql = """
 SELECT R.ReceiptID, R.Description, R.Amount, U.Username, R.PurchaseDate
@@ -279,9 +284,9 @@ def receipts_receipt(ReceiptID):
 
 	# users = Table('Users', meta, autoload=True, autoload_with=engine)
 
-	returnSet = {'receipt': [], 'users': [], 'receiptsUsers': []}
+	returnSet = {'receipt': {}, 'users': [], 'receiptsUsers': []}
 	# for i in qry.filter(receipts.c['ReceiptID'] == ReceiptID):
-	# 	returnSet['receipt'] += [{'ReceiptID': i.ReceiptID, 'Description': i.Description, 'Amount': float(i.Amount), 'OwnerUserID': i.OwnerUserID}]
+	# 	returnSet['receipt'] += [{'ReceiptID': iReceiptID, 'Description': i.Description, 'Amount': float(i.Amount), 'OwnerUserID': i.OwnerUserID}]
 	if (ReceiptID != 0):
 		with engine.connect() as con:
 			sql = text(
@@ -294,7 +299,10 @@ def receipts_receipt(ReceiptID):
 			data = {"ReceiptID": ReceiptID }
 			for r in con.execute(sql, **data):
 				print(r)
-				returnSet['receipt'] += [{'ReceiptID': r.ReceiptID, 'Description': r.Description, 'Amount': float(r.Amount), 'OwnerUserID': r.OwnerUserID, 'PurchaseDate': r.PurchaseDate}]
+				returnSet['receipt'] = {'ReceiptID': r.ReceiptID, 'Description': r.Description, 'Amount': float(r.Amount), 'OwnerUserID': r.OwnerUserID, 'PurchaseDate': r.PurchaseDate}
+
+		if (returnSet['receipt'] == {}):
+			returnSet['receipt']['PurchaseDate'] = datetime.datetime.now()
 
 
 		with engine.connect() as con:
@@ -312,7 +320,7 @@ def receipts_receipt(ReceiptID):
 			for r in con.execute(sql, **data):
 				returnSet['receiptsUsers'] += [{'UserID': r.UserID, 'DeductionAmount': float(r.DeductionAmount), 'PaymentRatio': r.PaymentRatio}]
 	else: 
-		returnSet['receipt'] += [{'ReceiptID': 0, 'PurchaseDate': datetime.datetime.now() }]
+		returnSet['receipt'] = {'ReceiptID': 0, 'PurchaseDate': datetime.datetime.now() }
 
 	with engine.connect() as con:
 		print("USERS")

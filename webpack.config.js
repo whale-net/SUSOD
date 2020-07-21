@@ -36,11 +36,10 @@ const config = {
 			test: /\.(js|jsx)$/,
 			loader: 'babel-loader',
 			exclude: /node_modules/,
-		}, {
-       test: /\.(css)$/i, 
-  loader:  "css-loader" 
-
-      }
+		},  {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
 		]
 	},
 	
