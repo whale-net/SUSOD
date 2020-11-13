@@ -164,7 +164,8 @@ def receipts_save(formData):
 				con.execute(sql, **data)
 	 
 
-	return formData
+	# Run a search so we get up to date!!
+	return receipts_receipt(ReceiptID)
 
 def receipts_setup():
 	engine = create_engine('mysql+pymysql://'+config.DATABASE_USERNAME+':'+config.DATABASE_PASSWORD+'@'+config.DATABASE_HOSTNAME+'/'+config.DATABASE_NAME, echo=True)
@@ -338,6 +339,7 @@ def receipts_receipt(ReceiptID):
 		for i in con.execute(sql):
 			returnSet['users'] += [{'UserID': i.UserID, 'Username': i.Username}]
 
+	returnSet['ReceiptID'] = ReceiptID
 
 	return returnSet
 

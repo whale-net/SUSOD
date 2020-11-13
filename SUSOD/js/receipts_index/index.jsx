@@ -19,20 +19,33 @@ import Receipt from './receipt.jsx';
 import {FiSearch, FiPlusCircle} from 'react-icons/fi'
 
 
+
+import DatePicker from "react-datepicker";
+ 
+import "react-datepicker/dist/react-datepicker.css";
+// import 'react-datepicker/dist/react-datepicker-cssmodules.css'
+//icons 
+import {FiPlusSquare} from 'react-icons/fi';
+
+
 class Index extends Component {
 
 	constructor() {
 		super();
+
+		this.defaultReceipt = {receipt: {PurchaseDate: new Date(), Amount: null, Description: "", OwnerUserID: null}, users: [], receiptsUsers: []}
+
 		this.state = {
 			Description: '',
 			ShowModal: false, 
 			ReceiptID: 0,
 			Amount: null,
 			OnlyShowUnpaid: false,
-			UserID: 0
+			UserID: 0,
+			ReceiptData: this.defaultReceipt,
+			SuccessMessage: ""
 		};
 
-		
 		// Describes the columns for this page's grid
 		this.columns = [
 			{
@@ -74,14 +87,80 @@ class Index extends Component {
 		this.onReceiptClick = this.onReceiptClick.bind(this);
 		this.onNewClick = this.onNewClick.bind(this);
 		this.onSearch = this.onSearch.bind(this);
+		this.updateReceiptFieldIfDefined = this.updateReceiptFieldIfDefined.bind(this);
+		this.onReceiptsUsersChange = this.onReceiptsUsersChange.bind(this);
+
 	}
 
 	onReceiptClick(e) {
 
-		this.setState({ShowModal: true, ReceiptID: e.target.textContent });
-	}
+		fetch(this.props.url + 'receipt', {
+				credentials: 'same-origin',
+				method: 'POST',
+				header: 'Content-Type: application/json',
+				body: JSON.stringify(e.target.textContent) // provide the receiptid
+			})
+			.then((response) => {
+				if (!response.ok) throw Error(response.statusText);
+				return response.json();
+			})
+			.then((data) => {
+				console.log(data);
+				this.setState({ReceiptData: data});
+			})
+			.catch((error) => {
+				console.log(error);
+			});
 
+
+		this.setState({ShowModal: true, ReceiptID: e.target.textContent });
+
+
+	}
+	onReceiptsUsersChange(e ) {
+		let userId = e.target.value;
+		// console.log(this.state.receiptsUsers);
+
+		if (document.getElementById(`chk-${userId}`).checked){
+			// checkbox is checked..
+			if (!this.findByField(this.state.ReceiptData.receiptsUsers, 'UserID', userId)){
+				let ReceiptData = this.state.ReceiptData;
+				ReceiptData.receiptsUsers.push({'UserID': userId,  'DeductionAmount': 0, 'PaymentRatio': 1});
+				this.setState({ReceiptData: ReceiptData});
+			}
+		}
+		else{
+			let ReceiptData = this.state.ReceiptData;
+
+			for (var i =0; i < ReceiptData.receiptsUsers.length; i++){
+			   if (ReceiptData.receiptsUsers[i]['UserID'] == userId) {
+				  ReceiptData.receiptsUsers.splice(i,1);
+				  break;
+			   }
+			}
+
+			this.setState({ReceiptData: ReceiptData});
+		}
+	}
+	
 	onNewClick(e) {
+		fetch(this.props.url + 'receipt', {
+				credentials: 'same-origin',
+				method: 'POST',
+				header: 'Content-Type: application/json',
+				body: JSON.stringify(0) // provide 0 so we still get users and such
+			})
+			.then((response) => {
+				if (!response.ok) throw Error(response.statusText);
+				return response.json();
+			})
+			.then((data) => {
+				console.log(data);
+				this.setState({ReceiptData: data});
+			})
+			.catch((error) => {
+				console.log(error);
+			});
 		this.setState({ShowModal: true, ReceiptID: 0});
 
 	}
@@ -137,14 +216,53 @@ class Index extends Component {
 	}
 
 	handleModalClose(e) {
-		this.setState({ShowModal: false, ReceiptID: 0});
+		this.setState({ShowModal: false, ReceiptID: 0, SuccessMessage: ""});
 	}
 
 	handleModalSave(e) {
-		console.log('hi');
-		this.setState({ShowModal: false,ReceiptID: 0});		
+		let ReceiptData = this.state.ReceiptData;
+		ReceiptData.receipt.PurchaseDate = new Date(ReceiptData.receipt.PurchaseDate); // clean purchasedate
+
+		this.setState({ReceiptData: ReceiptData});
+
+		fetch(this.props.url + 'save', {
+				credentials: 'same-origin',
+				method: 'POST',
+				header: 'Content-Type: application/json',
+				body: JSON.stringify(this.state.ReceiptData)
+			})
+			.then((response) => {
+				if (!response.ok) throw Error(response.statusText);
+				return response.json();
+			})
+			.then((data) => {
+				this.setState({ReceiptData: data, SuccessMessage: "Saved Successfully, ReceiptID: " + data.ReceiptID.toString(), ReceiptID: data.ReceiptID});
+				
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+		console.log(this.state);
 	}
 
+	updateReceiptFieldIfDefined(field, value){
+		console.log(field);
+		console.log(value);
+		if (!!this.state.ReceiptData){
+			let ReceiptData = this.state.ReceiptData;
+			ReceiptData.receipt[field] = value;
+
+			this.setState({ReceiptData: ReceiptData});
+
+		}
+	}
+	findByField(array, field, value) {
+		for(var i = 0; i < array.length; i += 1) {
+			if(array[i][field] === value) {
+				return array[i];
+			}
+		}
+	}
 
 	render() {
 		return (
@@ -157,9 +275,92 @@ class Index extends Component {
 					// style={{marginLeft: '23em'}}
 					// onAfterOpen={}
 		        >
-		        	<Receipt url={this.props.url + 'receipt'} id={parseInt(this.state.ReceiptID)} UserID={parseInt(this.state.UserID)}/>
-		          	<Button variant='primary' onClick={this.handleModalClose}>Close</Button>
-					
+		        	<p>{this.state.SuccessMessage}</p>
+					<Form> 
+						<Form.Group 
+								as={Col} 
+								md={12}>
+							<Form.Row className="pt-3 ">
+								<InputGroup className="">
+									<InputGroup.Prepend>
+										<InputGroup.Text>Description</InputGroup.Text>
+									</InputGroup.Prepend>
+									<Form.Control 
+										value={this.state.ReceiptData.receipt.Description}
+										onChange={(e) => this.updateReceiptFieldIfDefined('Description', e.target.value)}
+
+									/>
+								</InputGroup>
+								<InputGroup className="">
+									<InputGroup.Prepend>
+										<InputGroup.Text>Amount</InputGroup.Text>
+									</InputGroup.Prepend>
+									<Form.Control 
+										value={this.state.ReceiptData.receipt.Amount} 
+										onChange={(e) => this.updateReceiptFieldIfDefined('Amount', e.target.value)}
+
+										// onChange={(e) => console.log(e)}
+									/>
+								</InputGroup>
+								<InputGroup className="pt-3" style={{width: "20em"}}>
+									<InputGroup.Prepend>
+										<InputGroup.Text>Purchased By</InputGroup.Text>
+									</InputGroup.Prepend>
+									<Form.Control 
+										as="select" 
+										value={this.state.ReceiptData.receipt.OwnerUserID}
+										onChange={(e) => this.updateReceiptFieldIfDefined('OwnerUserID', e.target.value)}//this.onOwnerUserIDChange}
+										>
+							    		{this.state.ReceiptData.users.map((user) => (
+							    				<option value={user.UserID}>{user.Username}</option>
+						    			))}	
+								    </Form.Control>
+								</InputGroup>
+								<InputGroup className="">	
+									<DatePicker
+										style={{width: "20em"}}
+								        selected={new Date(this.state.ReceiptData.receipt.PurchaseDate.toString())}
+								        onChange={(e) => {console.log(e); this.updateReceiptFieldIfDefined('PurchaseDate', e);  }}								
+								      />
+								</InputGroup>
+
+
+							</Form.Row>
+							<Form.Row className='pt-3 '>
+								<InputGroup className="">
+								{  this.state.ReceiptData.users.slice(1).map((user) => (  
+									  <Form.Check 
+								        type={'checkbox'}
+								        checked={this.findByField(this.state.ReceiptData.receiptsUsers , 'UserID', user.UserID)}
+								        id={`chk-${user.UserID}`}
+								        key={user.UserID}
+								        value={user.UserID}
+								        label={user.Username}
+								        onClick={this.onReceiptsUsersChange}
+								      />
+
+								        ))}
+								</InputGroup>
+							</Form.Row>
+
+
+							<Form.Row className="pt-3" style={{width: "20em"}}>
+								 
+							</Form.Row>
+
+						
+								<Form.Row>
+									<Button onClick={(e) => this.handleModalSave(e)} variant="primary" className="mx-auto mt-5">
+										Submit
+									</Button> 
+							
+								</Form.Row>
+						</Form.Group>
+					</Form>
+					<Form.Row>
+						<Button variant='primary' onClick={this.handleModalClose}>Close</Button>
+					</Form.Row>
+				
 
 		        </Modal>
 
