@@ -321,7 +321,8 @@ def receipts_receipt(ReceiptID):
 			for r in con.execute(sql, **data):
 				returnSet['receiptsUsers'] += [{'UserID': r.UserID, 'DeductionAmount': float(r.DeductionAmount), 'PaymentRatio': r.PaymentRatio}]
 	else: 
-		returnSet['receipt'] = {'ReceiptID': 0, 'PurchaseDate': datetime.datetime.now() }
+		returnSet['receipt'] = {'ReceiptID': 0, 'PurchaseDate': datetime.datetime.now(), 'Amount': '', 'OwnerUserID': 0, 'Description': ''  } #default params...
+		returnSet['receiptsUsers'] = [] # reset receipts users
 
 	with engine.connect() as con:
 		print("USERS")

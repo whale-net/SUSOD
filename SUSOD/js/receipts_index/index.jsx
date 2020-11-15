@@ -105,7 +105,6 @@ class Index extends Component {
 				return response.json();
 			})
 			.then((data) => {
-				console.log(data);
 				this.setState({ReceiptData: data});
 			})
 			.catch((error) => {
@@ -117,7 +116,8 @@ class Index extends Component {
 
 
 	}
-	onReceiptsUsersChange(e ) {
+
+	onReceiptsUsersChange(e) {
 		let userId = e.target.value;
 		// console.log(this.state.receiptsUsers);
 
@@ -143,6 +143,42 @@ class Index extends Component {
 		}
 	}
 	
+	clearReceiptsUsers() {
+		console.log(this.state);
+
+		if (!!this.state.ReceiptData.users.length && this.state.ReceiptData.users.length > 0) {
+
+			for (let i = 0; i < this.state.ReceiptData.users.length; i++) {
+				let userId = this.state.ReceiptData.users[i].UserID;
+				if (userId > 0) {
+					let chkbox = document.getElementById(`chk-${userId}`);
+
+					if (chkbox.checked) {
+						chkbox.checked = false;
+					}
+
+				}
+			}
+		}
+		else {
+			// assume hardcoded 
+			for (let i = 8; i < 11; i++) {
+				let userId = i;
+				if (userId > 0) {
+					let chkbox = document.getElementById(`chk-${userId}`);
+
+					if (chkbox.checked) {
+						chkbox.checked = false;
+					}
+					onReceiptsUsersChange(i);
+				}
+			}
+		}
+
+
+
+	}
+	
 	onNewClick(e) {
 		fetch(this.props.url + 'receipt', {
 				credentials: 'same-origin',
@@ -155,14 +191,15 @@ class Index extends Component {
 				return response.json();
 			})
 			.then((data) => {
-				console.log(data);
+				// console.log(data);
 				this.setState({ReceiptData: data});
 			})
 			.catch((error) => {
 				console.log(error);
 			});
-		this.setState({ShowModal: true, ReceiptID: 0});
 
+		this.setState({ShowModal: true, ReceiptID: 0, SuccessMessage: ""});
+		this.clearReceiptsUsers();
 	}
 
 	onDescriptionChange(e) {
@@ -173,7 +210,7 @@ class Index extends Component {
 	}
 	onOnlyShowUnpaidChange(e) {
 
-		console.log(e.target.checked);
+		// console.log(e.target.checked);
 		this.setState({OnlyShowUnpaid: e.target.checked});
 	}
 	
@@ -185,7 +222,7 @@ class Index extends Component {
 				return response.json();
 			})
 			.then((data) => {
-				console.log(data);
+				// console.log(data);
 				this.setState({data: data});
 				this.setState({UserID: data['UserID']})
 			})
@@ -207,7 +244,7 @@ class Index extends Component {
 				return response.json();
 			})
 			.then((data) => {
-				console.log(data);
+				// console.log(data);
 				this.setState({data: data['data']});
 			})
 			.catch((error) => {
@@ -216,6 +253,7 @@ class Index extends Component {
 	}
 
 	handleModalClose(e) {
+		this.clearReceiptsUsers();
 		this.setState({ShowModal: false, ReceiptID: 0, SuccessMessage: ""});
 	}
 
@@ -242,12 +280,12 @@ class Index extends Component {
 			.catch((error) => {
 				console.log(error);
 			});
-		console.log(this.state);
+		// console.log(this.state);
 	}
 
 	updateReceiptFieldIfDefined(field, value){
-		console.log(field);
-		console.log(value);
+		// console.log(field);
+		// console.log(value);
 		if (!!this.state.ReceiptData){
 			let ReceiptData = this.state.ReceiptData;
 			ReceiptData.receipt[field] = value;
@@ -271,17 +309,18 @@ class Index extends Component {
 
 				<Modal
 					isOpen={this.state.ShowModal}
-					className="ml-5 mt-5 pt-5 pl-5"
-					// style={{marginLeft: '23em'}}
+					// className="ml-5 mt-5 pt-5 pl-5"
+					// style={{width: '2px'}}
 					// onAfterOpen={}
 		        >
+		        	<h2>{this.state.ReceiptData.receipt.ReceiptID > 0 ? 'ReceiptID: ' + this.state.ReceiptData.receipt.ReceiptID : "New Receipt"}</h2>
 		        	<p>{this.state.SuccessMessage}</p>
 					<Form> 
 						<Form.Group 
 								as={Col} 
 								md={12}>
 							<Form.Row className="pt-3 ">
-								<InputGroup className="">
+								<InputGroup className="col-6">
 									<InputGroup.Prepend>
 										<InputGroup.Text>Description</InputGroup.Text>
 									</InputGroup.Prepend>
@@ -291,7 +330,9 @@ class Index extends Component {
 
 									/>
 								</InputGroup>
-								<InputGroup className="">
+							</Form.Row>
+							<Form.Row className='pt-3'>
+								<InputGroup className="col-2">
 									<InputGroup.Prepend>
 										<InputGroup.Text>Amount</InputGroup.Text>
 									</InputGroup.Prepend>
@@ -302,7 +343,7 @@ class Index extends Component {
 										// onChange={(e) => console.log(e)}
 									/>
 								</InputGroup>
-								<InputGroup className="pt-3" style={{width: "20em"}}>
+								<InputGroup className="col-3" style={{width: "20em"}}>
 									<InputGroup.Prepend>
 										<InputGroup.Text>Purchased By</InputGroup.Text>
 									</InputGroup.Prepend>
@@ -316,11 +357,13 @@ class Index extends Component {
 						    			))}	
 								    </Form.Control>
 								</InputGroup>
-								<InputGroup className="">	
+								<InputGroup className="col-3 ">	
+									<InputGroup.Prepend>
+										<InputGroup.Text>Purchased Date</InputGroup.Text>
+									</InputGroup.Prepend>
 									<DatePicker
-										style={{width: "20em"}}
 								        selected={new Date(this.state.ReceiptData.receipt.PurchaseDate.toString())}
-								        onChange={(e) => {console.log(e); this.updateReceiptFieldIfDefined('PurchaseDate', e);  }}								
+								        onChange={(e) => this.updateReceiptFieldIfDefined('PurchaseDate', e)}								
 								      />
 								</InputGroup>
 
@@ -357,11 +400,11 @@ class Index extends Component {
 								</Form.Row>
 						</Form.Group>
 					</Form>
-					<Form.Row>
-						<Button variant='primary' onClick={this.handleModalClose}>Close</Button>
-					</Form.Row>
-				
+					<Button variant='primary' onClick={this.handleModalClose}>Close</Button>
+					<Button variant='primary' onClick={this.onNewClick}>New</Button>
 
+					<p>If you have just clicked 'New' from the parent form, and have some checkbox checked, please click 'New' above. Small bug as the checkbox doesn't actually exist when I want to manipulate it. Thank you.</p>
+		        	
 		        </Modal>
 
 				<Form > 
@@ -410,12 +453,8 @@ class Index extends Component {
 						<Form.Group as={Col} lg={8}>
 							
 							<Form.Row>
-								<FiSearch  onClick={this.onSearch} className="mx-auto mt-5">
-									Search
-								</FiSearch> 
-								<FiPlusCircle onClick={this.onNewClick} className="mx-auto mt-5" >
-									Add
-								</FiPlusCircle>
+								<Button className='m-4' variant='primary' onClick={this.onSearch}>Search</Button>
+								<Button className='m-4' variant='primary' onClick={this.onNewClick}>New</Button>
 							</Form.Row>
 						</Form.Group>
 					</Form.Row>
