@@ -413,32 +413,26 @@ class Index extends Component {
 							</Form.Row>
 							<Form.Row className='pt-3'>
 								<InputGroup className="">
-									
-									
 									{ !!this.state.ReceiptData.userSet && Object.keys(this.state.ReceiptData.userSet).map((user) => (  
-										<div>
+										<div style={{padding: '2px'}}>
 											
-											<Form.Check 
-										        type={'checkbox'}
-										        checked={!!this.state.ReceiptData.receiptsUsers[user] && !!this.state.ReceiptData.receiptsUsers[user][0] ? !this.state.ReceiptData.receiptsUsers[user][0]["Deleted"] : false}
-										        id={`chk-${user.UserID}`}
-										        key={user.UserID}
-										        value={user.UserID}
-										        label={user.Username}
-										        onClick={(e) => this.toggleReceiptUserDeleted( user)}
-										      />
-											<InputGroup.Text onClick={(e) => this.toggleReceiptUserDeleted( user)}>{!!this.state.ReceiptData.userSet[user] ? this.state.ReceiptData.userSet[user] : ""}</InputGroup.Text>
-	
-										    <p>DeductionAmount</p>
-											<Form.Control 
-											value={!!this.state.ReceiptData.receiptsUsers[user] && !!this.state.ReceiptData.receiptsUsers[user][0] ? this.state.ReceiptData.receiptsUsers[user][0]["DeductionAmount"]: 0 } 
-											onChange={(e) => this.updateReceiptUsersFieldIfDefined('DeductionAmount', e.target.value, user)}
-											/>
-											<p>PaymentRatio</p>
-											<Form.Control 
-											value={!!this.state.ReceiptData.receiptsUsers[user] && !!this.state.ReceiptData.receiptsUsers[user][0] ? this.state.ReceiptData.receiptsUsers[user][0]["PaymentRatio"]: 0 } 
-											onChange={(e) => this.updateReceiptUsersFieldIfDefined('PaymentRatio', e.target.value, user)}
-											/>
+											
+											<InputGroup.Text style={{width: '20em'}} onClick={(e) => this.toggleReceiptUserDeleted( user)}>{!!this.state.ReceiptData.userSet[user] ? this.state.ReceiptData.userSet[user] : ""}</InputGroup.Text>
+											{(!!this.state.ReceiptData.receiptsUsers[user] && !!this.state.ReceiptData.receiptsUsers[user][0] ? !this.state.ReceiptData.receiptsUsers[user][0]["Deleted"] : false) &&
+												<div>
+												<p>DeductionAmount</p>
+												<Form.Control 
+												value={!!this.state.ReceiptData.receiptsUsers[user] && !!this.state.ReceiptData.receiptsUsers[user][0] ? this.state.ReceiptData.receiptsUsers[user][0]["DeductionAmount"]: 0 } 
+												onChange={(e) => this.updateReceiptUsersFieldIfDefined('DeductionAmount', e.target.value, user)}
+												/>
+												<p>PaymentRatio</p>
+												<Form.Control 
+												value={!!this.state.ReceiptData.receiptsUsers[user] && !!this.state.ReceiptData.receiptsUsers[user][0] ? this.state.ReceiptData.receiptsUsers[user][0]["PaymentRatio"]: 0 } 
+												onChange={(e) => this.updateReceiptUsersFieldIfDefined('PaymentRatio', e.target.value, user)}
+												/>
+												</div>
+											}
+										    
 										</div>
 							        ))}
 								</InputGroup>
