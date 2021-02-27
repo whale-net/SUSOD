@@ -325,7 +325,7 @@ class Index extends Component {
 
 	toggleReceiptUserDeleted(userid){
 		if (!!this.state.ReceiptData.receiptsUsers){
-			if (!!this.state.ReceiptData.receiptsUsers[userid] && this.state.ReceiptData.receiptsUsers[userid][0]){
+			if (!!this.state.ReceiptData.receiptsUsers[userid] && !!this.state.ReceiptData.receiptsUsers[userid][0]){
 				let isDeleted = this.state.ReceiptData.receiptsUsers[userid][0]["Deleted"]
 				this.updateReceiptUsersFieldIfDefined("Deleted", !isDeleted, userid);
 			}
@@ -413,7 +413,9 @@ class Index extends Component {
 							</Form.Row>
 							<Form.Row className='pt-3'>
 								<InputGroup className="">
-									{ Object.keys(this.state.ReceiptData.userSet).map((user) => (  
+									
+									
+									{ !!this.state.ReceiptData.userSet && Object.keys(this.state.ReceiptData.userSet).map((user) => (  
 										<div>
 											
 											<Form.Check 
@@ -425,7 +427,7 @@ class Index extends Component {
 										        label={user.Username}
 										        onClick={(e) => this.toggleReceiptUserDeleted( user)}
 										      />
-											<InputGroup.Text>{this.state.ReceiptData.userSet[user]}</InputGroup.Text>
+											<InputGroup.Text onClick={(e) => this.toggleReceiptUserDeleted( user)}>{!!this.state.ReceiptData.userSet[user] ? this.state.ReceiptData.userSet[user] : ""}</InputGroup.Text>
 	
 										    <p>DeductionAmount</p>
 											<Form.Control 
