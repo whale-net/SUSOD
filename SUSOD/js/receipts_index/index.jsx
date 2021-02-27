@@ -33,7 +33,7 @@ class Index extends Component {
 	constructor() {
 		super();
 
-		this.defaultReceipt = {receipt: {PurchaseDate: new Date(), Amount: null, Description: "", OwnerUserID: null}, users: [], receiptsUsers: []}
+		this.defaultReceipt = {receipt: {PurchaseDate: new Date(), Amount: null, Description: "", OwnerUserID: null}, users: [], receiptsUsers: {}, userSet: {}}
 
 		this.state = {
 			Description: '',
@@ -88,8 +88,9 @@ class Index extends Component {
 		this.onNewClick = this.onNewClick.bind(this);
 		this.onSearch = this.onSearch.bind(this);
 		this.updateReceiptFieldIfDefined = this.updateReceiptFieldIfDefined.bind(this);
-		this.onReceiptsUsersChange = this.onReceiptsUsersChange.bind(this);
-
+		//this.onReceiptsUsersChange = this.onReceiptsUsersChange.bind(this);
+		this.updateReceiptUsersFieldIfDefined = this.updateReceiptUsersFieldIfDefined.bind(this);
+		this.toggleReceiptUserDeleted = this.toggleReceiptUserDeleted.bind(this);
 	}
 
 	onReceiptClick(e) {
@@ -106,6 +107,7 @@ class Index extends Component {
 			})
 			.then((data) => {
 				this.setState({ReceiptData: data});
+				console.log(this.state);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -117,67 +119,67 @@ class Index extends Component {
 
 	}
 
-	onReceiptsUsersChange(e) {
-		let userId = e.target.value;
-		// console.log(this.state.receiptsUsers);
+	// onReceiptsUsersChange(e) {
+	// 	let userId = e.target.value;
+	// 	// console.log(this.state.receiptsUsers);
 
-		if (document.getElementById(`chk-${userId}`).checked){
-			// checkbox is checked..
-			if (!this.findByField(this.state.ReceiptData.receiptsUsers, 'UserID', userId)){
-				let ReceiptData = this.state.ReceiptData;
-				ReceiptData.receiptsUsers.push({'UserID': userId,  'DeductionAmount': 0, 'PaymentRatio': 1});
-				this.setState({ReceiptData: ReceiptData});
-			}
-		}
-		else{
-			let ReceiptData = this.state.ReceiptData;
+	// 	if (document.getElementById(`chk-${userId}`).checked){
+	// 		// checkbox is checked..
+	// 		if (!this.findByField(this.state.ReceiptData.receiptsUsers, 'UserID', userId)){
+	// 			let ReceiptData = this.state.ReceiptData;
+	// 			ReceiptData.receiptsUsers.push({'UserID': userId,  'DeductionAmount': 0, 'PaymentRatio': 1});
+	// 			this.setState({ReceiptData: ReceiptData});
+	// 		}
+	// 	}
+	// 	else{
+	// 		let ReceiptData = this.state.ReceiptData;
 
-			for (var i =0; i < ReceiptData.receiptsUsers.length; i++){
-			   if (ReceiptData.receiptsUsers[i]['UserID'] == userId) {
-				  ReceiptData.receiptsUsers.splice(i,1);
-				  break;
-			   }
-			}
+	// 		for (var i =0; i < ReceiptData.receiptsUsers.length; i++){
+	// 		   if (ReceiptData.receiptsUsers[i]['UserID'] == userId) {
+	// 			  ReceiptData.receiptsUsers.splice(i,1);
+	// 			  break;
+	// 		   }
+	// 		}
 
-			this.setState({ReceiptData: ReceiptData});
-		}
-	}
+	// 		this.setState({ReceiptData: ReceiptData});
+	// 	}
+	// }
 	
-	clearReceiptsUsers() {
-		console.log(this.state);
+	// clearReceiptsUsers() {
+	// 	console.log(this.state);
 
-		if (!!this.state.ReceiptData.users.length && this.state.ReceiptData.users.length > 0) {
+	// 	if (!!this.state.ReceiptData.users.length && this.state.ReceiptData.users.length > 0) {
 
-			for (let i = 0; i < this.state.ReceiptData.users.length; i++) {
-				let userId = this.state.ReceiptData.users[i].UserID;
-				if (userId > 0) {
-					let chkbox = document.getElementById(`chk-${userId}`);
+	// 		for (let i = 0; i < this.state.ReceiptData.users.length; i++) {
+	// 			let userId = this.state.ReceiptData.users[i].UserID;
+	// 			if (userId > 0) {
+	// 				let chkbox = document.getElementById(`chk-${userId}`);
 
-					if (chkbox.checked) {
-						chkbox.checked = false;
-					}
+	// 				if (chkbox.checked) {
+	// 					chkbox.checked = false;
+	// 				}
 
-				}
-			}
-		}
-		else {
-			// assume hardcoded 
-			for (let i = 8; i < 11; i++) {
-				let userId = i;
-				if (userId > 0) {
-					let chkbox = document.getElementById(`chk-${userId}`);
+	// 			}
+	// 		}
+	// 	}
+	// 	else {
+	// 		// assume hardcoded 
+	// 		for (let i = 8; i < 11; i++) {
+	// 			let userId = i;
+	// 			if (userId > 0) {
+	// 				let chkbox = document.getElementById(`chk-${userId}`);
 
-					if (chkbox.checked) {
-						chkbox.checked = false;
-					}
-					onReceiptsUsersChange(i);
-				}
-			}
-		}
+	// 				if (chkbox.checked) {
+	// 					chkbox.checked = false;
+	// 				}
+	// 				onReceiptsUsersChange(i);
+	// 			}
+	// 		}
+	// 	}
 
 
 
-	}
+	// }
 	
 	onNewClick(e) {
 		fetch(this.props.url + 'receipt', {
@@ -191,7 +193,7 @@ class Index extends Component {
 				return response.json();
 			})
 			.then((data) => {
-				// console.log(data);
+				console.log(data);
 				this.setState({ReceiptData: data});
 			})
 			.catch((error) => {
@@ -199,7 +201,7 @@ class Index extends Component {
 			});
 
 		this.setState({ShowModal: true, ReceiptID: 0, SuccessMessage: ""});
-		this.clearReceiptsUsers();
+	//	this.clearReceiptsUsers();
 	}
 
 	onDescriptionChange(e) {
@@ -244,7 +246,7 @@ class Index extends Component {
 				return response.json();
 			})
 			.then((data) => {
-				// console.log(data);
+				console.log(data);
 				this.setState({data: data['data']});
 			})
 			.catch((error) => {
@@ -253,7 +255,7 @@ class Index extends Component {
 	}
 
 	handleModalClose(e) {
-		this.clearReceiptsUsers();
+		
 		this.setState({ShowModal: false, ReceiptID: 0, SuccessMessage: ""});
 	}
 
@@ -294,6 +296,46 @@ class Index extends Component {
 
 		}
 	}
+	
+	updateReceiptUsersFieldIfDefined(field, value, userid){
+		if (!!this.state.ReceiptData.receiptsUsers){
+			if (!!this.state.ReceiptData.receiptsUsers[userid] && !!this.state.ReceiptData.receiptsUsers[userid][0]){
+				let receiptUser = this.state.ReceiptData.receiptsUsers[userid][0];
+				receiptUser[field] = value;
+				
+
+				let ReceiptData = this.state.ReceiptData;
+				ReceiptData.receiptsUsers[userid][0] = receiptUser;
+				this.setState({ReceiptData: ReceiptData});
+
+			} else { // create default then call this function again
+				let ReceiptData = this.state.ReceiptData;
+				let newReceiptUser = {ReceiptUserID: -1, PaymentRatio: 1, DeductionAmount: 0};
+
+				ReceiptData.receiptsUsers[userid] = [];
+				ReceiptData.receiptsUsers[userid].push(newReceiptUser);
+				
+				this.setState({ReceiptData: ReceiptData});
+				this.updateReceiptUsersFieldIfDefined(field, value, userid);
+			}
+
+		}
+		
+	}
+
+	toggleReceiptUserDeleted(userid){
+		if (!!this.state.ReceiptData.receiptsUsers){
+			if (!!this.state.ReceiptData.receiptsUsers[userid] && this.state.ReceiptData.receiptsUsers[userid][0]){
+				let isDeleted = this.state.ReceiptData.receiptsUsers[userid][0]["Deleted"]
+				this.updateReceiptUsersFieldIfDefined("Deleted", !isDeleted, userid);
+			}
+			else {
+				this.updateReceiptUsersFieldIfDefined("Deleted", false, userid);
+			}
+		}
+		console.log(this.state.ReceiptData.receiptsUsers);
+	}
+
 	findByField(array, field, value) {
 		for(var i = 0; i < array.length; i += 1) {
 			if(array[i][field] === value) {
@@ -369,23 +411,37 @@ class Index extends Component {
 
 
 							</Form.Row>
-							<Form.Row className='pt-3 '>
+							<Form.Row className='pt-3'>
 								<InputGroup className="">
-								{  this.state.ReceiptData.users.slice(1).map((user) => (  
-									  <Form.Check 
-								        type={'checkbox'}
-								        checked={this.findByField(this.state.ReceiptData.receiptsUsers , 'UserID', user.UserID)}
-								        id={`chk-${user.UserID}`}
-								        key={user.UserID}
-								        value={user.UserID}
-								        label={user.Username}
-								        onClick={this.onReceiptsUsersChange}
-								      />
-
-								        ))}
+									{ Object.keys(this.state.ReceiptData.userSet).map((user) => (  
+										<div>
+											
+											<Form.Check 
+										        type={'checkbox'}
+										        checked={!!this.state.ReceiptData.receiptsUsers[user] && !!this.state.ReceiptData.receiptsUsers[user][0] ? !this.state.ReceiptData.receiptsUsers[user][0]["Deleted"] : false}
+										        id={`chk-${user.UserID}`}
+										        key={user.UserID}
+										        value={user.UserID}
+										        label={user.Username}
+										        onClick={(e) => this.toggleReceiptUserDeleted( user)}
+										      />
+											<InputGroup.Text>{this.state.ReceiptData.userSet[user]}</InputGroup.Text>
+	
+										    <p>DeductionAmount</p>
+											<Form.Control 
+											value={!!this.state.ReceiptData.receiptsUsers[user] && !!this.state.ReceiptData.receiptsUsers[user][0] ? this.state.ReceiptData.receiptsUsers[user][0]["DeductionAmount"]: 0 } 
+											onChange={(e) => this.updateReceiptUsersFieldIfDefined('DeductionAmount', e.target.value, user)}
+											/>
+											<p>PaymentRatio</p>
+											<Form.Control 
+											value={!!this.state.ReceiptData.receiptsUsers[user] && !!this.state.ReceiptData.receiptsUsers[user][0] ? this.state.ReceiptData.receiptsUsers[user][0]["PaymentRatio"]: 0 } 
+											onChange={(e) => this.updateReceiptUsersFieldIfDefined('PaymentRatio', e.target.value, user)}
+											/>
+										</div>
+							        ))}
 								</InputGroup>
 							</Form.Row>
-
+							
 
 							<Form.Row className="pt-3" style={{width: "20em"}}>
 								 
@@ -403,8 +459,6 @@ class Index extends Component {
 					<Button variant='primary' onClick={this.handleModalClose}>Close</Button>
 					<Button variant='primary' onClick={this.onNewClick}>New</Button>
 
-					<p>If you have just clicked 'New' from the parent form, and have some checkbox checked, please click 'New' above. Small bug as the checkbox doesn't actually exist when I want to manipulate it. Thank you.</p>
-		        	
 		        </Modal>
 
 				<Form > 

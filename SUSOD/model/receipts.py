@@ -127,20 +127,20 @@ def receipts_save(formData):
 
 
 
-	#first delete existing ReceiptsUsers records 
-	with engine.connect() as con:
+	# #first delete existing ReceiptsUsers records 
+	# with engine.connect() as con:
 
-		sql = text(
-			"""
-			DELETE 
-			FROM ReceiptsUsers 
-			WHERE ReceiptID = :ReceiptID
-			"""
-			)
+	# 	sql = text(
+	# 		"""
+	# 		DELETE 
+	# 		FROM ReceiptsUsers 
+	# 		WHERE ReceiptID = :ReceiptID
+	# 		"""
+	# 		)
 
-		#required keys
-		data = {"ReceiptID": ReceiptID}
-		con.execute(sql, **data)
+	# 	#required keys
+	# 	data = {"ReceiptID": ReceiptID}
+	# 	con.execute(sql, **data)
 
 		
 
@@ -150,19 +150,41 @@ def receipts_save(formData):
 			#add individually
 			with engine.connect() as con:
 
-				sql = text(
+				receiptUser = formData['receiptsUsers'][i][0]
+				print(receiptUser)
+				if receiptUser['ReceiptUserID'] > 0:
+					sql = text(
 					"""
-					INSERT into ReceiptsUsers (ReceiptID , UserID, PaymentRatio, DeductionAmount , CreatedBy, CreatedDate , UpdatedBy , UpdatedDate )
-					values (:ReceiptID , :UserID, :PaymentRatio, :DeductionAmount , :CreatedBy, :CreatedDate , :UpdatedBy , :UpdatedDate )
+					UPDATE ReceiptsUsers
+					SET PaymentRatio = :PaymentRatio,
+						DeductionAmount = :DeductionAmount,
+						UpdatedBy = :UpdatedBy,
+						UpdatedDate = :UpdatedDate,
+						Deleted = :Deleted
+					WHERE ReceiptUserID = :ReceiptUserID
 
 					"""
 					)
 
-				#required keys
-				data = {"ReceiptID": ReceiptID, "UserID": i['UserID'], "PaymentRatio": i["PaymentRatio"], "DeductionAmount": i["DeductionAmount"], "CreatedBy": formData['UserID'],
-						"UpdatedBy": formData['UserID'], "CreatedDate": CreatedUpdatedAt, "UpdatedDate": CreatedUpdatedAt	}
-				con.execute(sql, **data)
-	 
+					data = {"ReceiptUserID": receiptUser['ReceiptUserID'], "PaymentRatio": receiptUser["PaymentRatio"], "DeductionAmount": receiptUser["DeductionAmount"], 
+							"UpdatedBy": i, "UpdatedDate": CreatedUpdatedAt, "Deleted": receiptUser["Deleted"]	}
+					con.execute(sql, **data)
+
+				else:
+					sql = text(
+					"""
+					INSERT into ReceiptsUsers (ReceiptID , UserID, PaymentRatio, DeductionAmount , CreatedBy, CreatedDate , UpdatedBy , UpdatedDate, Deleted )
+					values (:ReceiptID , :UserID, :PaymentRatio, :DeductionAmount , :CreatedBy, :CreatedDate , :UpdatedBy , :UpdatedDate, :Deleted)
+
+					"""
+					)
+
+					#required keys
+					data = {"ReceiptID": ReceiptID, "UserID": i, "PaymentRatio": receiptUser["PaymentRatio"], "DeductionAmount": receiptUser["DeductionAmount"], "CreatedBy": formData['UserID'],
+							"UpdatedBy": formData['UserID'], "CreatedDate": CreatedUpdatedAt, "UpdatedDate": CreatedUpdatedAt, "Deleted": receiptUser["Deleted"]	}
+					con.execute(sql, **data)
+
+				
 
 	# Run a search so we get up to date!!
 	return receipts_receipt(ReceiptID)
@@ -310,19 +332,34 @@ def receipts_receipt(ReceiptID):
 
 			sql = text(
 				"""
-				SELECT ru.UserID , IFNULL(ru.DeductionAmount, 0) DeductionAmount , ru.PaymentRatio 
+				SELECT ru.*
 				from ReceiptsUsers ru 
 				where ru.ReceiptID = :ReceiptID 
-				and ru.Deleted = 0
+				
 				"""
 			)
 			data = {"ReceiptID": ReceiptID }
 
-			for r in con.execute(sql, **data):
-				returnSet['receiptsUsers'] += [{'UserID': r.UserID, 'DeductionAmount': float(r.DeductionAmount), 'PaymentRatio': r.PaymentRatio}]
+			returnSet['receiptsUsers'] = {}
+			for ru in con.execute(sql, **data):
+				 #[{'UserID': r.UserID, 'DeductionAmount': float(r.DeductionAmount), 'PaymentRatio': r.PaymentRatio}]
+				returnSet['receiptsUsers'][ru.UserID] = [{'ReceiptUserID': ru.ReceiptUserID, 'ReceiptID': ru.ReceiptID, 'UserID': ru.UserID, 
+					'CreatedBy': ru.CreatedBy, 'CreatedDate': ru.CreatedDate, 'UpdatedBy': ru.UpdatedBy, 'UpdatedDate': ru.UpdatedDate}]
+
+				if ru.Deleted == b'\x00':
+					returnSet['receiptsUsers'][ru.UserID][0]['Deleted'] = False
+				else: 
+					returnSet['receiptsUsers'][ru.UserID][0]['Deleted'] = True
+
+
+				if ru.PaymentRatio != None:
+					returnSet['receiptsUsers'][ru.UserID][0]['PaymentRatio'] = float(ru.PaymentRatio)
+				if ru.DeductionAmount != None:
+					returnSet['receiptsUsers'][ru.UserID][0]['DeductionAmount'] = float(ru.DeductionAmount)
+					
 	else: 
 		returnSet['receipt'] = {'ReceiptID': 0, 'PurchaseDate': datetime.datetime.now(), 'Amount': '', 'OwnerUserID': 0, 'Description': ''  } #default params...
-		returnSet['receiptsUsers'] = [] # reset receipts users
+		returnSet['receiptsUsers'] = {} # reset receipts users
 
 	with engine.connect() as con:
 		print("USERS")
@@ -336,9 +373,11 @@ def receipts_receipt(ReceiptID):
 
 		#initial 
 		returnSet['users'] += [{'UserID': -1, 'Username': '--Select--'}]
+		returnSet['userSet'] = {}
 
 		for i in con.execute(sql):
 			returnSet['users'] += [{'UserID': i.UserID, 'Username': i.Username}]
+			returnSet['userSet'][i.UserID] = i.Username
 
 	returnSet['ReceiptID'] = ReceiptID
 
